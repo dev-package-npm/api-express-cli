@@ -1,54 +1,43 @@
 {
-    "version": "0.1.0",
-    "license": "MIT",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "files": [
-        "dist",
-        "src"
-    ],
-    "engines": {
-        "node": ">=10"
-    },
-    "scripts": {
-        "start": "tsdx watch",
-        "build": "tsdx build",
-        "test": "tsdx test",
-        "lint": "tsdx lint",
-        "prepare": "tsdx build",
-        "size": "size-limit",
-        "analyze": "size-limit --why"
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "tsdx lint"
-        }
-    },
-    "prettier": {
-        "printWidth": 80,
-        "semi": true,
-        "singleQuote": true,
-        "trailingComma": "es5"
-    },
-    "name": "api-express-cli",
-    "author": "Jairo Rohatan",
-    "module": "dist/api-express-cli.esm.js",
-    "size-limit": [
-        {
-            "path": "dist/api-express-cli.cjs.production.min.js",
-            "limit": "10 KB"
-        },
-        {
-            "path": "dist/api-express-cli.esm.js",
-            "limit": "10 KB"
-        }
-    ],
-    "devDependencies": {
-        "@size-limit/preset-small-lib": "^8.0.1",
-        "husky": "^8.0.1",
-        "size-limit": "^8.0.1",
-        "tsdx": "^0.14.1",
-        "tslib": "^2.4.0",
-        "typescript": "^3.9.10"
-    }
+  "name": "api-express-cli",
+  "version": "1.0.0",
+  "description": "api-express-cli is an tool with an integrated cli, which allows generating models, rutes, and controllers",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "bin": {
+    "aec": "./build/src/bin/aec.js",
+    "api-express-cli": "./build/src/bin/aec.js"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "watch": "npx tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-package-npm/cubyte.git"
+  },
+  "keywords": [],
+  "author": "Jairo Rohatan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dev-package-npm/cubyte/issues"
+  },
+  "homepage": "https://github.com/dev-package-npm/cubyte#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/inquirer": "^9.0.1",
+    "@types/node": "^18.7.14",
+    "ansi-colors": "^4.1.3",
+    "inquirer": "^8.2.4",
+    "nodemon": "^2.0.19",
+    "ts-code-generator": "^0.0.3",
+    "typescript": "^4.8.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1"
+  }
 }
