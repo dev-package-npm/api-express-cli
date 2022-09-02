@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import { createController } from "./functions/index.function";
+import { createController } from '../templates/controller';
 
 export const controller = async () => {
     let controller: string;

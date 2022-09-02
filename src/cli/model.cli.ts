@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import { createModel } from "./functions/index.function";
+import { createModel } from '../templates/model';
 
 export const model = async () => {
     await inquirer.prompt({

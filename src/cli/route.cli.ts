@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import { createRouter } from './functions/index.function';
+import { createRouter } from '../templates/route';
 
 export const route = async () => {
     await inquirer.prompt({

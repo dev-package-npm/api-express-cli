@@ -1,5 +1,7 @@
 import inquirer from 'inquirer';
-import { createController, createModel, createRouter } from "./functions/index.function";
+import { createController } from '../templates/controller';
+import { createModel } from '../templates/model';
+import { createRouter } from '../templates/route';
 
 export const entity = async () => {
     let entity: string;
