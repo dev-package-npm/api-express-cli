@@ -1,6 +1,6 @@
 {
   "name": "api-express-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "api-express-cli is an tool with an integrated cli, which allows generating models, rutes, and controllers",
   "main": "index.js",
   "directories": {
@@ -20,7 +20,16 @@
     "type": "git",
     "url": "git+https://github.com/dev-package-npm/api-express-cli.git"
   },
-  "keywords": [],
+  "keywords": [
+    "api",
+    "express",
+    "cli",
+    "api-express-cli",
+    "ws",
+    "websockets",
+    "mvc",
+    "mysql-promise"
+  ],
   "author": "Jairo Rohatan",
   "license": "ISC",
   "bugs": {
