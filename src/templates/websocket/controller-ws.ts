@@ -1,7 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
-const pathControllerWs = path.resolve('') + '/src/testing/controllers/';
+// Local
+import { dir } from '../../config/structure-configuration.json';
+
+const pathControllerWs = path.resolve('') + '/' + dir + '/testing/controllers/';
 
 export const createControllerWs = () => {
     const file = createFile({

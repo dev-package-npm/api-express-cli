@@ -1,6 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
+// Local
+import { dir } from "../config/structure-configuration.json";
+
+const pathController = path.resolve() + '/' + dir + '/controllers/';
 export const createController = (nameClass: string, inputController: string, nameModel?: string) => {
     let file = createFile({
         fileName: `${inputController}.controller.ts`,
@@ -181,7 +185,7 @@ export const createController = (nameClass: string, inputController: string, nam
         ],
     });
 
-    if (fs.existsSync(path.resolve() + '/src/controllers'))
-        fs.writeFileSync(`${path.resolve('')}/src/controllers/${file.fileName}`, file.write());
+    if (fs.existsSync(pathController))
+        fs.writeFileSync(`${pathController}${file.fileName}`, file.write());
     else console.log("you must initialize your project");
 };

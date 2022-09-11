@@ -46,6 +46,10 @@ Initialize project:
 
 > This will create a structure for the project focused on the MVC model,
 > It has a basic http server to start working.
+>
+> The following image shows the structure created.
+>
+> ![1662869920757](image/README/1662869920757.png)
 
 ```bash
 npx aec init
@@ -90,4 +94,4 @@ npx aec --help
 > - Start server.
 >   > `npm run watch-node`
 
-> You can then see if it is operating correctly by putting this `localhost:3000` in your browser.
+> You can then see if it is operating correctly by putting this `http://localhost:3000` in your browser.

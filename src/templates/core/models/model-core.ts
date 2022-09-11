@@ -1,8 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
+// Local
+import { dir } from '../../../config/structure-configuration.json';
 
-const pathModelCore = path.resolve() + '/src/core/models/';
+const pathModelCore = path.resolve() + '/' + dir + '/core/models/';
 
 export const createModelCore = () => {
     const file = createFile({

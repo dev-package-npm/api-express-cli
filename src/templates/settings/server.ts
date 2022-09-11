@@ -1,7 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
-const pathServer = path.resolve('') + '/src/settings/server/';
+// Local
+import { dir } from '../../config/structure-configuration.json';
+
+const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
 
 export const createServerHttp = () => {
     const file = createFile({
@@ -95,7 +98,7 @@ export const createServerHttp = () => {
                         onWriteFunctionBody: writer => {
                             writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get(\'port\'));
 else
-    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port: ', this.app.get(\'port\')));`)
+    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port: ', this.app.get(\'port\'), \` visite: http://localhost:\${this.app.get(\'port\')}\`));`)
                         }
                     }
                 ],

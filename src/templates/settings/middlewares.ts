@@ -1,7 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
-const pathMiddleware = path.resolve() + '/src/settings/server/middlewares/';
+// Local
+import { dir } from '../../config/structure-configuration.json';
+
+const pathMiddleware = path.resolve() + '/' + dir + '/settings/server/middlewares/';
 export const createMiddlewares = (fileName?: string) => {
     const file = createFile({
         fileName: fileName == undefined ? 'middlewares.ts' : fileName,

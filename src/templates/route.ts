@@ -1,6 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
+// Local
+import { dir } from '../config/structure-configuration.json';
+
+const pathRoute = path.resolve() + '/' + dir + '/routes/';
 
 export const createRouter = (nameRoute: string, inputRouter: string, nameController?: string) => {
     let file;
@@ -84,8 +88,8 @@ export const createRouter = (nameRoute: string, inputRouter: string, nameControl
             defaultExportExpression: `${nameRoute}`
         });
     // console.log(file.write());
-    if (fs.existsSync(path.resolve('') + '/src/routes/')) {
-        fs.writeFileSync(`${path.resolve('')}/src/routes/${file.fileName}`, file.write());
+    if (fs.existsSync(pathRoute)) {
+        fs.writeFileSync(`${pathRoute}${file.fileName}`, file.write());
     }
     else console.log("you must initialize your project");
 }

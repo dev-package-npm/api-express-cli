@@ -1,7 +1,10 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
-const pathServer = path.resolve('') + '/src/settings/server/';
+// Local
+import { dir } from '../../config/structure-configuration.json';
+
+const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
 
 export const createServerWs = () => {
     const file = createFile({

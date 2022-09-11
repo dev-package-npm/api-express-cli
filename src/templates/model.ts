@@ -1,7 +1,9 @@
 import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
-
+// Local
+import { dir } from '../config/structure-configuration.json';
+const pathModel = path.resolve() + '/' + dir + '/models';
 export const createModel = (nameClass: string, inputModel: string) => {
     const file = createFile({
         fileName: `${inputModel}.model.ts`,
@@ -54,8 +56,8 @@ export const createModel = (nameClass: string, inputModel: string) => {
         ]
     });
     // console.log(file.write());
-    if (fs.existsSync(path.resolve('') + '/src/models/')) {
-        fs.writeFileSync(`${path.resolve('')}/src/models/${file.fileName}`, file.write());
+    if (fs.existsSync(pathModel)) {
+        fs.writeFileSync(`${pathModel}${file.fileName}`, file.write());
     }
     else console.log("you must initialize your project");
 
