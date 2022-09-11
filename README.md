@@ -26,11 +26,18 @@ Install all types of dependency packagesInstall all types:
 npm i -D @types/morgan @types/express @types/node
 ```
 
+Install nodemon so that the server restarts, for each change:
+
+```bash
+npm i -D nodemon
+```
+
 Add the following scripts in package.json:
 
 ```json
 "scirpts": {
 "start":"node ./dist/index",
+"watch-node": "nodemon ./dist/index",
 "watch-ts": "npx tsc -w"
 }
 ```
@@ -73,3 +80,14 @@ See help:
 ```
 npx aec --help
 ```
+
+## Quick start
+
+> After initializing the project, to verify that everything went well, you have to execute the following commands:
+>
+> - Transpile code from ts to js.
+>   > `npm run watch-ts`
+> - Start server.
+>   > `npm run watch-node`
+
+> You can then see if it is operating correctly by putting this `localhost:3000` in your browser.

@@ -14,21 +14,22 @@ export const createServerHttp = () => {
                     { name: 'Request' },
                     { name: 'Response ' }
                 ],
-                defaultImportName: 'express'
+                defaultImportName: 'express',
+                onBeforeWrite: writer => {
+                    writer.writeLine('//#region imports npm modules');
+                }
             },
             {
                 moduleSpecifier: 'http',
                 defaultImportName: 'http',
-                onAfterWrite: writer => {
-                    writer.writeLine('//Local import');
-                    writer.writeLine('//#endregion');
-                }
+                onAfterWrite: writer => writer.writeLine('// Local import')
             },
             {
                 moduleSpecifier: './middlewares/middlewares',
                 defaultImportName: 'middlewares',
                 onBeforeWrite: writer => {
-                    writer.writeLine('//#region routes controller, middlewares');
+                    writer.blankLine();
+                    writer.writeLine('// routes controller, middlewares');
                 }
             },
             {
@@ -91,7 +92,11 @@ export const createServerHttp = () => {
                     {
                         scope: 'public',
                         name: 'start',
-                        onWriteFunctionBody: writer => writer.writeLine('this.app.listen(this.app.get(\'port\'));')
+                        onWriteFunctionBody: writer => {
+                            writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get(\'port\'));
+else
+    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port: ', this.app.get(\'port\')));`)
+                        }
                     }
                 ],
             }

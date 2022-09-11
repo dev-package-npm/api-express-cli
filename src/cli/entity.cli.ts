@@ -8,7 +8,7 @@ export const entity = async () => {
     await inquirer.prompt({
         type: 'input',
         name: 'entity',
-        message: 'Escribe el nombre de la entidad: ',
+        message: 'Write the name of the entity: ',
     }).then((answer) => {
         entity = answer.entity;
         let nameRoute = `${entity}Router`;

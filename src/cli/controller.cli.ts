@@ -6,7 +6,7 @@ export const controller = async () => {
     await inquirer.prompt({
         type: 'input',
         name: 'controller',
-        message: 'Escribe el nombre del controlador: ',
+        message: 'Write the name of the controller: ',
     }).then((answer) => {
         controller = answer.controller;
         controller = controller.charAt(0).toUpperCase() + controller.slice(1);

@@ -27,7 +27,7 @@ export const createMiddlewares = (fileName?: string) => {
                     writer.blankLine();
                     writer.writeLine('const middlewares = async (app: Application): Promise<void> => {')
                         .indent().write('dotenv.config();')
-                        .newLine().indent().write('app.set(\'port\', process.env.PORT || 3000);')
+                        .newLine().indent().write('app.set(\'port\', process.env.PORT || 4000);')
                         .newLine().indent().write('app.use(express.json());')
                         .newLine().indent().write('app.use(morgan(\'dev\'));')
                         .newLine().indent().write('app.use(express.urlencoded({ extended: true }));')
