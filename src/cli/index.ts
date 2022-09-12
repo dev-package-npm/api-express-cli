@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+// Local
+import { dir } from '../config/structure-configuration.json';
 import { createServerHttp } from "../templates/settings/server";
 import { createMiddlewares } from "../templates/settings/middlewares";
 import { routeIndex } from "../templates/route-index";
@@ -11,7 +13,7 @@ import { createModelCore } from '../templates/core/models/model-core';
 import { createDatabase } from '../templates/settings/database';
 
 export const startStructure = () => {
-    const pathWork = path.resolve() + '/src';
+    const pathWork = path.resolve() + '/' + dir;
     // fs.rmSync(pathWork, { recursive: true, force: true });
     if (!fs.existsSync(pathWork) || true) {
         const folders = ['core', 'helpers', 'models', 'services', 'controllers', 'routes', 'settings', 'testing', 'libs'];

@@ -13,6 +13,7 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc -w",
+    "dev:run-server": "nodemon ./build/test/index",
     "prepare": "npm run build",
     "test": "node ./build/test/blah.test.js"
   },
@@ -42,6 +43,7 @@
     "@types/inquirer": "^9.0.1",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.7.14",
+    "nodemon": "^2.0.19",
     "typescript": "^4.8.2"
   },
   "dependencies": {

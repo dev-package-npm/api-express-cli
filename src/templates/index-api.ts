@@ -3,7 +3,7 @@ import { dir } from '../config/structure-configuration.json';
 import fs from 'fs';
 import path from 'path';
 
-const pathIndexApi = path.resolve() + dir;
+const pathIndexApi = path.resolve() + '/' + dir;
 
 export const createIndexApi = () => {
     const file = createFile({

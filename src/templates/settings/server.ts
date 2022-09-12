@@ -98,7 +98,7 @@ export const createServerHttp = () => {
                         onWriteFunctionBody: writer => {
                             writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get(\'port\'));
 else
-    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port: ', this.app.get(\'port\'), \` visite: http://localhost:\${this.app.get(\'port\')}\`));`)
+    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port:', this.app.get(\'port\'), \` visit: http://localhost:\${this.app.get(\'port\')}\`));`)
                         }
                     }
                 ],
