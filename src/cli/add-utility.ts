@@ -1,5 +1,7 @@
 import inquirer from 'inquirer';
 import { exec } from 'child_process';
+import ansiColors from 'ansi-colors';
+import { dir } from '../config/structure-configuration.json';
 import fs from 'fs';
 import path from 'path';
 import readLine from 'readline';
@@ -9,6 +11,9 @@ import { createRouter } from '../templates/route';
 import { createServerWs } from '../templates/websocket/server-ws';
 import { createControllerWs } from '../templates/websocket/controller-ws';
 import { createRouteWs } from '../templates/websocket/route-ws';
+import { exit } from 'process';
+import { createModelCore } from '../templates/core/models/model-core';
+import { createDatabase } from '../templates/settings/database';
 
 // #!/usr/bin / env node
 // import { createDatabase } from '../src/templates/settings/database';
@@ -22,10 +27,9 @@ import { createRouteWs } from '../templates/websocket/route-ws';
 
 
 export const addUtilities = async (params: string) => {
-    const arrayParams = params.split(' ');
     // console.log(arrayParams.length);
-    if (arrayParams.length > 1) {
-
+    if (params != undefined) {
+        interpretAnswer(params);
     } else
         await inquirer.prompt({
             type: 'list',
@@ -38,7 +42,7 @@ export const addUtilities = async (params: string) => {
                 },
                 {
                     name: 'Database(MySql)',
-                    value: 'db'
+                    value: 'db:mysql'
                 }
             ]
         }).then((answer) => {
@@ -55,7 +59,7 @@ const interpretAnswer = (answer: string) => {
                     createRouteWs();
                     createControllerWs();
                     // Edit server http, import and inicialize
-                    const pathServer = path.resolve('') + '/src/settings/server/';
+                    const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
 
                     const content = fs.createReadStream(pathServer + 'server.ts', 'utf8');
                     const lector = readLine.createInterface({ input: content });
@@ -85,7 +89,19 @@ const interpretAnswer = (answer: string) => {
             });
             break;
 
-        case 'db':
+        case 'db:mysql':
+            exec('npm i promise-mysql', (error, stdout, stderr) => {
+                if (!error && stdout != '' && !stderr) {
+                    fs.mkdirSync(path.resolve() + dir + '/models', { recursive: true });
+                    createDatabase();
+                    createModelCore();
+                } else
+                    console.log(error || stderr);
+            });
+            break;
+        default:
+            console.log(ansiColors.redBright('Invalid attribute'));
+            exit(1);
             break;
     }
 }

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
 // Local
 import { dir } from '../config/structure-configuration.json';
 import { createServerHttp } from "../templates/settings/server";
@@ -12,11 +13,15 @@ import ansiColors from 'ansi-colors';
 import { createModelCore } from '../templates/core/models/model-core';
 import { createDatabase } from '../templates/settings/database';
 
-export const startStructure = () => {
+export const startStructure = (params?: string) => {
+
     const pathWork = path.resolve() + '/' + dir;
     // fs.rmSync(pathWork, { recursive: true, force: true });
     if (!fs.existsSync(pathWork) || true) {
-        const folders = ['core', 'helpers', 'models', 'services', 'controllers', 'routes', 'settings', 'testing', 'libs'];
+        const types = '@types/morgan @types/express @types/node';
+        // exec('npm i -D' + types, (error, stdout, stderr) => {
+        //     if (!error && stdout != '' && !stderr) {
+        const folders = ['core', 'helpers', 'services', 'controllers', 'routes', 'settings', 'testing', 'libs'];
         const foldersSecundary = ['routes', 'controllers', 'models', 'helpers'];
         // fs.mkdirSync(pathWork);
         folders.forEach((value) => {
@@ -42,11 +47,12 @@ export const startStructure = () => {
         createMiddlewares();
         createServerHttp();
         createIndexApi();
-        createDatabase();
-        createModelCore();
         // Create helpers files
         createRequestHttpParams();
         createResponseHttp();
+        //     } else
+        //         console.log(error || stderr);
+        // });
     }
     else console.error(ansiColors.redBright('A project has already been initialized'));
 };
