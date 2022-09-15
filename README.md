@@ -20,18 +20,6 @@ npx tsc --init
 >
 > Also look for `target `and put `ES2022`.
 
-Install all types of dependency packagesInstall all types:
-
-```
-npm i -D @types/morgan @types/express @types/node
-```
-
-Install nodemon so that the server restarts, for each change:
-
-```bash
-npm i -D nodemon
-```
-
 Add the following scripts in package.json:
 
 ```json
@@ -44,46 +32,28 @@ Add the following scripts in package.json:
 
 Initialize project:
 
+```bash
+npx aec init
+```
+
 > This will create a structure for the project focused on the MVC model,
 > It has a basic http server to start working.
 >
 > The following image shows the structure created.
 >
-> ![1662869920757](image/README/1662869920757.png)
+> ![1663281512795](image/README/1663281512795.png)
 
-```bash
-npx aec init
-```
+| Commands             | Value   | Params             | Example                                                                                    | Description                                                                                    |
+| -------------------- | ------- | ------------------ | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `npx aec init`       | `--add` | `db:mysq` or `ws`  | `npx aec init --add db:mysql` or `npx aec init ws` or `npx aec init --add ws db:mysql ...` | Add new utilities when the value of `--add` is passed. You can put as many as there are        |
+| `npx aec route`      |         |                    | `npx aec route` or `npx aec r `                                                            | Create a route with the given name                                                             |
+| `npx aec controller` |         |                    | `npx aec controller ` or `npx aec c `                                                      | Create a controller with the given name                                                        |
+| `npx aec model`      |         |                    | `npx aec model ` or `npx aec m `                                                           | Create a model with the given name, as long as a database is configured                        |
+| `npx aec entity`     |         |                    | `npx aec entity ` or `npx aec e `                                                          | Create an entity with the given name: (controller, route, model)                               |
+| `npx aec remove`     |         | `db:mysq` or `ws ` | `npx aec remove db:mysql` or `npx aec rm db:mysq`                                          | Removes one of the utilities that is added. At the moment you can only delete database utility |
+| `npx aec --help`     |         |                    | `npx aec -h` or `npx aec`                                                                  | Show command help                                                                              |
 
-Create a route:
-
-```bash
-npx aec route
-```
-
-Create a controller:
-
-```bash
-npx aec controller
-```
-
-Create a model:
-
-```bash
-npx aec model
-```
-
-Create a entity:
-
-```
-npx aec entity
-```
-
-See help:
-
-```
-npx aec --help
-```
+**Nota:** you can use `aec` or `api-express-cli`.
 
 ## Quick start
 

@@ -3,17 +3,9 @@ import { exec } from 'child_process';
 import ansiColors from 'ansi-colors';
 import { dir } from '../config/structure-configuration.json';
 import fs, { promises } from 'fs';
-import path from 'path';
-import readLine from 'readline';
-import { createController } from '../templates/controller';
-import { createModel } from '../templates/model';
-import { createRouter } from '../templates/route';
-import { createServerWs } from '../templates/websocket/server-ws';
-import { createControllerWs } from '../templates/websocket/controller-ws';
-import { createRouteWs } from '../templates/websocket/route-ws';
 import { exit } from 'process';
-import { createModelCore, pathModelCore } from '../templates/core/models/model-core';
-import { createDatabase, pathDatabase } from '../templates/settings/database';
+import { pathModelCore } from '../templates/core/models/model-core';
+import { pathDatabase } from '../templates/settings/database';
 
 // TODO: todo por terminar.
 export const removeModules = async (params: Array<string>) => {

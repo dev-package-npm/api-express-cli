@@ -35,11 +35,13 @@ COMMAND LINE FLAGS
     ${ansiColors.cyan('controller, c ')}Create a controller with the specified name.
     ${ansiColors.cyan('model, m ')}Create a model with the specified name.
     ${ansiColors.cyan('add, ad ')}Allow adding new features.
+    ${ansiColors.cyan('remove, rm ')}Removes a package, which is added with the --add command.
     ${ansiColors.cyan('--help, -h ')}Print this message.
     ${ansiColors.cyan('--version, -v ')}Print version with package.
 
 COMMAND OPTIONS
-    ${ansiColors.cyan('--name ')}Name files.
+    ${ansiColors.cyan('--name ')}Name files ${ansiColors.redBright('Not applied')}.
+    ${ansiColors.cyan('--add ')}Name module.
     `;
             console.log(help);
         }

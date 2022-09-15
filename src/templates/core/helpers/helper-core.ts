@@ -4,7 +4,7 @@ import path from 'path';
 // Local
 import { dir } from '../../../config/structure-configuration.json';
 
-const pathHelperCore = path.resolve() + '/' + dir + '/core/herlpers/';
+const pathHelperCore = path.resolve() + '/' + dir + '/core/helpers/';
 
 export const createRequestHttpParams = () => {
     const file = createFile({

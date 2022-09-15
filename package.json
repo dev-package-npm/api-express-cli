@@ -53,7 +53,6 @@
     "express": "^4.18.1",
     "inquirer": "^8.2.4",
     "morgan": "^1.10.0",
-    "promise-mysql": "^5.2.0",
     "socket.io": "^4.5.2",
     "ts-code-generator": "^0.0.3"
   }
