@@ -86,21 +86,21 @@ export const createControllerWs = () => {
                         ],
                         isAsync: true,
                         onWriteFunctionBody: writer => writer.writeLine(`const { message } = req.body;
-        try {
-            //#region Validate params
-            const validation = await validateParams(req.body, { requiredParameters: { message } });
-            if (validation != true)
-                return res.status(400).json(setResponse({ text: 'Parameters are invalid', errors: validation, status: 700 }));
-            //#endregion
-            WebsocketServer.io.emit('message', message);
-            WebsocketServer.io.emit('data', message);
-            WebsocketController.response = setResponse({ text: 'Successfully sent' });
-            return res.status(WebsocketController.code).json(WebsocketController.response);
-        } catch (error: any) {
-            return res.status(500).json(setResponse({
-                text: 'An unexpected error has occurred', errors: error.message, status: 801
-            }));
-        }`)
+try {
+    //#region Validate params
+    const validation = await validateParams(req.body, { requiredParameters: { message } });
+    if (validation != true)
+        return res.status(400).json(setResponse({ text: 'Parameters are invalid', errors: validation, status: 700 }));
+    //#endregion
+    WebsocketServer.io.emit('message', message);
+    WebsocketServer.io.emit('data', message);
+    WebsocketController.response = setResponse({ text: 'Successfully sent' });
+    return res.status(WebsocketController.code).json(WebsocketController.response);
+} catch (error: any) {
+    return res.status(500).json(setResponse({
+        text: 'An unexpected error has occurred', errors: error.message, status: 801
+    }));
+}`)
                     },
                     {
                         name: 'connect',
@@ -114,15 +114,15 @@ export const createControllerWs = () => {
                         ],
                         onWriteFunctionBody: writer => {
                             writer.writeLine(`socketIo.of('/connect').on('connection', (socket) => {
-            console.log(socket.id);
-        });
-        socketIo.on('connection', (socket) => {
-            console.log(socket.id);
-            socket.on('message', data => {
-                console.log(data);
-                socket.emit('data', { message: 'recivido', name: data.name });
-            });
-        });`);
+    console.log(socket.id);
+});
+socketIo.on('connection', (socket) => {
+    console.log(socket.id);
+    socket.on('message', data => {
+        console.log(data);
+        socket.emit('data', { message: 'recivido', name: data.name });
+    });
+});`);
                         }
                     }
                 ],

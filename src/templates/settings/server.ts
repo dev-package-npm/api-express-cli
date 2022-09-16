@@ -6,7 +6,7 @@ import { dir } from '../../config/structure-configuration.json';
 
 const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
 
-export const createServerHttp = () => {
+export const createServerHttp = async () => {
     const file = createFile({
         fileName: 'server.ts',
         imports: [
@@ -96,9 +96,9 @@ export const createServerHttp = () => {
                         scope: 'public',
                         name: 'start',
                         onWriteFunctionBody: writer => {
-                            writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get(\'port\'));
+                            writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.server.get(\'port\'));
 else
-    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port:', this.app.get(\'port\'), \` visit: http://localhost:\${this.app.get(\'port\')}\`));`)
+    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port:', this.server.get(\'port\'), \` visit: http://localhost:\${this.app.get(\'port\')}\`));`)
                         }
                     }
                 ],
@@ -110,5 +110,5 @@ else
     if (!fs.existsSync(pathServer)) {
         fs.mkdirSync(pathServer, { recursive: true });
     }
-    fs.writeFileSync(pathServer + file.fileName, file.write());
+    await fs.promises.writeFile(pathServer + file.fileName, file.write());
 };

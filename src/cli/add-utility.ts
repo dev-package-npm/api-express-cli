@@ -92,7 +92,7 @@ const interpretAnswer = (answer: string) => {
         case 'db:mysql':
             exec('npm i promise-mysql', (error, stdout, stderr) => {
                 if (!error && stdout != '' && !stderr) {
-                    fs.mkdirSync(path.resolve() + dir + '/models', { recursive: true });
+                    fs.mkdirSync(path.resolve() + '/' + dir + '/models', { recursive: true });
                     createDatabase();
                     createModelCore();
                 } else

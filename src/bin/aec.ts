@@ -46,8 +46,8 @@ COMMAND OPTIONS
             console.log(help);
         }
         else if (params == 'init' || params == 'in') {
+            await startStructure();
             interpretAttibutes(input);
-            startStructure();
         }
         else if (params == 'entity' || params == 'e') {
             if (fs.existsSync(path.resolve() + dir + '/models'))

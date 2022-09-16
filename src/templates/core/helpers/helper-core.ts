@@ -216,6 +216,7 @@ export const createResponseHttp = () => {
         interfaces: [
             {
                 name: 'IResponse',
+                isExported: true,
                 properties: [
                     {
                         name: 'status',
@@ -267,7 +268,7 @@ export const createResponseHttp = () => {
         functions: [
             {
                 isExported: true,
-                name: 'seResponse',
+                name: 'setResponse',
                 returnType: 'IResponse',
                 parameters: [
                     {

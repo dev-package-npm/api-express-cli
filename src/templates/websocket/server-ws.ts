@@ -50,26 +50,26 @@ export const createServerWs = () => {
                     {
                         name: 'pathDefault',
                         type: 'string',
-                        defaultExpression: '\'/api/abrev/v1\'',
+                        defaultExpression: '\'/api/abrev/v1/\'',
                         scope: 'private'
                     }
                 ],
                 constructorDef: {
                     onWriteFunctionBody: writer => {
                         writer.writeLine(`WebsocketServer.io = new socketIo.Server(server, {
-     cors: {
-         origin: '*',
-         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-     },
-     allowEIO3: true,
-     transports: ['polling', 'websocket'],
-     pingInterval: 25 * 1000,
-     pingTimeout: 5000,
-     maxHttpBufferSize: 100000000,
-     connectTimeout: 5000,
-     path: this.pathDefault + 'socket.io',
- });
- this.routes();`);
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    },
+    allowEIO3: true,
+    transports: ['polling', 'websocket'],
+    pingInterval: 25 * 1000,
+    pingTimeout: 5000,
+    maxHttpBufferSize: 100000000,
+    connectTimeout: 5000,
+    path: this.pathDefault + 'socket.io',
+});
+this.routes();`);
                     },
                     parameters: [
                         {
