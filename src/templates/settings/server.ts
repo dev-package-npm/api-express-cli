@@ -2,9 +2,9 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../../config/structure-configuration.json';
+import { config1 } from '../../config/structure-configuration.json';
 
-const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
+const pathServer = path.resolve('') + '/' + config1.dir + '/settings/server/';
 
 export const createServerHttp = async () => {
     const file = createFile({
@@ -60,17 +60,12 @@ export const createServerHttp = async () => {
                         name: 'pathDefault',
                         type: 'string',
                         defaultExpression: `'/api/abrev/v1/'`
-                    },
-                    {
-                        name: 'server',
-                        type: 'http.Server'
                     }
                 ],
                 constructorDef: {
                     onWriteFunctionBody: writer => {
                         writer.writeLine('this.app = express();');
                         writer.writeLine('this.config();');
-                        writer.writeLine('this.server = new http.Server(this.app);');
                         writer.writeLine('this.routes();');
                     }
                 },
@@ -96,9 +91,9 @@ export const createServerHttp = async () => {
                         scope: 'public',
                         name: 'start',
                         onWriteFunctionBody: writer => {
-                            writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.server.get(\'port\'));
+                            writer.writeLine(`if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get(\'port\'));
 else
-    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port:', this.server.get(\'port\'), \` visit: http://localhost:\${this.app.get(\'port\')}\`));`)
+    this.app.listen(this.app.get(\'port\'), () => console.log('Server initialized and listening on the port:', this.app.get(\'port\'), \` visit: http://\${process.env[\`HOSTNAME_APP_\${String(process.env.NODE_ENV).toUpperCase()}\`]}\`));`)
                         }
                     }
                 ],

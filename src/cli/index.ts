@@ -2,33 +2,38 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 // Local
-import { dir } from '../config/structure-configuration.json';
+import { config1 } from '../config/structure-configuration.json';
 import { createServerHttp } from "../templates/settings/server";
 import { createMiddlewares } from "../templates/settings/middlewares";
 import { routeIndex } from "../templates/route-index";
 import { createIndexApi } from '../templates/index-api';
-import { createRequestHttpParams, createResponseHttp } from '../templates/core/helpers/helper-core';
 import { createEnvFile } from '../templates/env';
 import ansiColors from 'ansi-colors';
+import { createControllerCore } from '../templates/core/controllers/controller-core';
+import { createSecurityCore } from '../templates/core/libs/security';
 
-export const startStructure = (params?: string) => {
+export const startStructure = () => {
     return new Promise((resolve, reject) => {
-        const pathWork = path.resolve() + '/' + dir;
-        // fs.rmSync(pathWork, { recursive: true, force: true });
+        const pathWork = path.resolve() + '/' + config1.dir;
+
+        //TODO pendiente por comentar
+        fs.rmSync(pathWork, { recursive: true, force: true });
         if (!fs.existsSync(pathWork)) {
-            const types = '@types/morgan @types/express @types/node nodemon typescript';
-            const _package = 'express morgan dotenv';
+            const types = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript ';
+            const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
+            console.log('Installing package...');
             exec('npm i ' + _package, (error, stdout, stderr) => {
                 if (!error && stdout != '' && !stderr) {
                     exec('npm i -D ' + types, (error, stdout, stderr) => {
+                        console.log(ansiColors.blueBright('✓ Done'));
                         if (!error && stdout != '' && !stderr) {
-                            const folders = ['core', 'helpers', 'services', 'controllers', 'routes', 'settings', 'testing', 'libs'];
+                            const folders = Object.keys(config1.subDir).filter(value => value != 'models' && value != 'databases');
                             const foldersSecundary = ['routes', 'controllers', 'models', 'helpers'];
                             folders.forEach((value) => {
                                 fs.mkdirSync(pathWork + '/' + value, { recursive: true });
                             });
                             foldersSecundary.forEach((value) => {
-                                fs.mkdirSync(pathWork + '/services/auth/' + value, { recursive: true });
+                                // fs.mkdirSync(pathWork + '/services/auth/' + value, { recursive: true });
                                 if (value != 'models' && value != 'helpers')
                                     fs.mkdirSync(pathWork + '/testing/' + value, { recursive: true });
                             });
@@ -43,13 +48,13 @@ export const startStructure = (params?: string) => {
                             }
 
                             createEnvFile();
+                            // Create core files
+                            createControllerCore();
+                            createSecurityCore();
                             // Create Server http
                             createMiddlewares();
                             createServerHttp();
                             createIndexApi();
-                            // Create helpers files
-                            createRequestHttpParams();
-                            createResponseHttp();
                             resolve(true);
                         } else {
                             console.log(error || stderr);

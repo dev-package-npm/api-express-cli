@@ -2,9 +2,9 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../../config/structure-configuration.json';
+import { config1 } from '../../config/structure-configuration.json';
 
-const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
+const pathServer = path.resolve('') + '/' + config1.dir + '/settings/server/';
 
 export const createServerWs = () => {
     const file = createFile({

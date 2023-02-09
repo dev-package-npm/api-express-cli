@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+import { addPrefix, getIndexSeparator } from '../functions/common';
 import { createModel } from '../templates/model';
 
 export const model = async () => {
@@ -8,14 +9,10 @@ export const model = async () => {
         message: 'Write the name of the model: ',
     }).then((answer) => {
         let model: string;
-        model = answer.model;
+        model = String(answer.model).toLocaleLowerCase();
         model = model.charAt(0).toUpperCase() + model.slice(1);
-        let nameClass = `${model}Model`;
-        let indexDash = model.search('-');
-        if (indexDash != -1) {
-            nameClass = model.slice(0, indexDash) + model.charAt(indexDash + 1).toUpperCase() + model.slice(indexDash + 2);
-            nameClass += 'Model';
-        }
+        let indexSeparator = getIndexSeparator(model).index;
+        let nameClass = addPrefix(indexSeparator, model, 'Model');
         createModel(nameClass, answer.model);
     });
 }

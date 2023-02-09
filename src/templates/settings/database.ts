@@ -2,9 +2,9 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../../config/structure-configuration.json';
+import { config1 } from '../../config/structure-configuration.json';
 
-export const pathDatabase = path.resolve() + '/' + dir + '/settings/';
+export const pathDatabase = path.resolve() + '/' + config1.dir + '/settings/';
 
 export const createDatabase = (fileName?: string) => {
     const file = createFile({
@@ -23,23 +23,34 @@ export const createDatabase = (fileName?: string) => {
         classes: [
             {
                 name: 'Database',
-                staticProperties: [
+                properties: [
                     {
                         name: 'config',
                         scope: 'protected',
-                        type: 'PoolConfig',
+                        type: 'PoolConfig'
                     }
                 ],
                 constructorDef: {
+                    parameters: [
+                        {
+                            name: 'config',
+                            type: 'PoolConfig',
+                            isOptional: true
+                        }
+                    ],
                     onWriteFunctionBody: writer => {
-                        writer.writeLine(`Database.config = {
-    connectionLimit: 113,
-    host: process.env.HOST_DB || 'localhost',
-    user: process.env.USER_DB || 'root',
-    password: process.env.USER_PASSWORD || '',
-    database: process.env.DB_NAME || 'testing',
-    multipleStatements: true
-};`);
+                        writer.writeLine(`if (config != undefined) {
+    this.config = config;
+} else {
+    this.config = {
+        connectionLimit: 113,
+        host: process.env[\`HOST_DB_\${String(process.env.NODE_ENV).toUpperCase()}\`],
+        user: process.env[\`USER_DB_\${String(process.env.NODE_ENV).toUpperCase()}\`],
+        password: process.env[\`USER_PASSWORD_\${String(process.env.NODE_ENV).toUpperCase()}\`],
+        database: process.env[\`DB_NAME_\${String(process.env.NODE_ENV).toUpperCase()}\`],
+        multipleStatements: true
+    };
+}`);
                     }
                 },
                 methods: [
@@ -51,7 +62,7 @@ export const createDatabase = (fileName?: string) => {
                         parameters: [
                             {
                                 name: 'config',
-                                type: 'PoolConfig = Database.config'
+                                type: 'PoolConfig = this.config'
                             }
                         ],
                         onWriteFunctionBody: writer => {

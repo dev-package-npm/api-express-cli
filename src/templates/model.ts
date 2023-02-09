@@ -2,11 +2,13 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../config/structure-configuration.json';
-const pathModel = path.resolve() + '/' + dir + '/models';
+import { replaceAll } from "../functions/common";
+import { config1 } from '../config/structure-configuration.json';
+
+const pathModel = path.resolve() + '/' + config1.dir + '/models';
 export const createModel = (nameClass: string, inputModel: string) => {
     const file = createFile({
-        fileName: `${inputModel}.model.ts`,
+        fileName: `${replaceAll(inputModel, '-')}.model.ts`,
         classes: [
             {
                 name: nameClass,
@@ -17,7 +19,7 @@ export const createModel = (nameClass: string, inputModel: string) => {
                         name: 'table',
                         scope: 'private',
                         type: 'string',
-                        defaultExpression: `'${String(inputModel).replaceAll('-', '_')}'`
+                        defaultExpression: `'${replaceAll(inputModel, '_')}'`
                     },
                     {
                         name: 'primeryKey',
@@ -37,7 +39,7 @@ export const createModel = (nameClass: string, inputModel: string) => {
             }
         ],
         imports: [
-            { moduleSpecifier: '../core/models/model', namedImports: [{ name: ' Model ' }] },
+            { moduleSpecifier: '../core/models/models', namedImports: [{ name: ' Model ' }] },
         ],
         interfaces: [
             {
@@ -55,9 +57,8 @@ export const createModel = (nameClass: string, inputModel: string) => {
             }
         ]
     });
-    // console.log(file.write());
     if (fs.existsSync(pathModel)) {
-        fs.writeFileSync(`${pathModel}${file.fileName}`, file.write());
+        fs.writeFileSync(`${pathModel}/${file.fileName}`, file.write());
     }
     else console.log("you must initialize your project");
 

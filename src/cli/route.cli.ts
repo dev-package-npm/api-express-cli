@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+import { addPrefix, getIndexSeparator } from '../functions/common';
 import { createRouter } from '../templates/route';
 
 export const route = async () => {
@@ -9,13 +10,8 @@ export const route = async () => {
     }).then((answer) => {
         let route: string;
         route = answer.route;
-        // route = route.charAt(0).toUpperCase() + route.slice(1);
-        let nameRoute = `${route}Router`;
-        let indexDash = route.search('-');
-        if (indexDash != -1) {
-            nameRoute = route.slice(0, indexDash) + route.charAt(indexDash + 1).toUpperCase() + route.slice(indexDash + 2);
-            nameRoute += 'Router';
-        }
+        let indexSeparator = getIndexSeparator(route).index;
+        let nameRoute = addPrefix(indexSeparator, route, 'Router');
         createRouter(nameRoute, answer.route);
     });
 }

@@ -2,9 +2,9 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../../config/structure-configuration.json';
+import { config1 } from '../../config/structure-configuration.json';
 
-const pathMiddleware = path.resolve() + '/' + dir + '/settings/server/middlewares/';
+const pathMiddleware = path.resolve() + '/' + config1.dir + '/settings/server/middlewares/';
 export const createMiddlewares = (fileName?: string) => {
     const file = createFile({
         fileName: fileName == undefined ? 'middlewares.ts' : fileName,
@@ -21,16 +21,26 @@ export const createMiddlewares = (fileName?: string) => {
             },
             {
                 moduleSpecifier: 'morgan',
-                defaultImportName: 'morgan'
+                defaultImportName: 'morgan',
+            },
+            {
+                moduleSpecifier: 'dotenv-expand',
+                defaultImportName: 'dotenvExpand',
+            },
+            {
+                moduleSpecifier: 'path',
+                defaultImportName: 'path',
             },
             {
                 moduleSpecifier: 'dotenv',
                 defaultImportName: 'dotenv',
                 onAfterWrite: writer => {
                     writer.blankLine();
+                    writer.writeLine(`const config = dotenv.config({ path: path.resolve() + '/.env' });`);
+                    writer.writeLine(`dotenvExpand.expand(config);`);
+                    writer.blankLine();
                     writer.writeLine('const middlewares = async (app: Application): Promise<void> => {')
-                        .indent().write('dotenv.config();')
-                        .newLine().indent().write('app.set(\'port\', process.env.PORT || 4000);')
+                        .indent().write('app.set(\'port\', process.env.PORT || 0);')
                         .newLine().indent().write('app.use(express.json());')
                         .newLine().indent().write('app.use(morgan(\'dev\'));')
                         .newLine().indent().write('app.use(express.urlencoded({ extended: true }));')

@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+import { addPrefix, getIndexSeparator } from '../functions/common';
 import { createController } from '../templates/controller';
 import { createModel } from '../templates/model';
 import { createRouter } from '../templates/route';
@@ -11,24 +12,12 @@ export const entity = async () => {
         message: 'Write the name of the entity: ',
     }).then((answer) => {
         entity = answer.entity;
-        let nameRoute = `${entity}Router`;
         const upperCamelCase = entity.charAt(0).toUpperCase() + entity.slice(1);
-        let nameClassController = `${upperCamelCase}Controller`;
-        let nameClassModel = `${upperCamelCase}Model`;
+        let indexSeparator = getIndexSeparator(entity).index;
+        let nameRoute = addPrefix(indexSeparator, entity, 'Router');
+        let nameClassController = addPrefix(indexSeparator, upperCamelCase, 'Controller');
+        let nameClassModel = addPrefix(indexSeparator, upperCamelCase, 'Model');
 
-        let indexDash = entity.search('-');
-        if (indexDash != -1) {
-            nameRoute = entity.slice(0, indexDash) + entity.charAt(indexDash + 1).toUpperCase() + entity.slice(indexDash + 2);
-            nameRoute += 'Router';
-        }
-        if (indexDash != -1) {
-            nameClassController = entity.slice(0, indexDash) + entity.charAt(indexDash + 1).toUpperCase() + entity.slice(indexDash + 2);
-            nameClassController += 'Controller';
-        }
-        if (indexDash != -1) {
-            nameClassModel = entity.slice(0, indexDash) + entity.charAt(indexDash + 1).toUpperCase() + entity.slice(indexDash + 2);
-            nameClassModel += 'Model';
-        }
         createRouter(nameRoute, answer.entity, nameClassController);
         createController(nameClassController, answer.entity, nameClassModel);
         createModel(nameClassModel, answer.entity);

@@ -2,9 +2,9 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../../config/structure-configuration.json';
+import { config1 } from '../../config/structure-configuration.json';
 
-const pathRouteWs = path.resolve('') + '/' + dir + '/testing/routes/';
+const pathRouteWs = path.resolve('') + '/' + config1.dir + '/testing/routes/';
 
 export const createRouteWs = () => {
     const file = createFile({

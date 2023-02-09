@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
 import { exec } from 'child_process';
 import ansiColors from 'ansi-colors';
-import { dir } from '../config/structure-configuration.json';
+import { config1 } from '../config/structure-configuration.json';
 import fs from 'fs';
 import path from 'path';
 import readLine from 'readline';
@@ -53,46 +53,58 @@ export const addUtilities = async (params: string) => {
 const interpretAnswer = (answer: string) => {
     switch (answer) {
         case 'ws':
-            exec('npm i socket.io', (error, stdout, stderr) => {
-                if (!error && stdout != '' && !stderr) {
-                    createServerWs();
-                    createRouteWs();
-                    createControllerWs();
-                    // Edit server http, import and inicialize
-                    const pathServer = path.resolve('') + '/' + dir + '/settings/server/';
+            const pathServerWs = path.resolve('') + '/' + config1.dir + '/settings/server/' + config1.subDir.settings.server.files[1];
+            fs.rmSync(pathServerWs, { force: true });
+            if (!fs.existsSync(pathServerWs)) {
+                exec('npm i socket.io', (error, stdout, stderr) => {
+                    if (!error && stdout != '' && !stderr) {
+                        createServerWs();
+                        createRouteWs();
+                        createControllerWs();
+                        // Edit server http, import and inicialize
+                        const pathServer = path.resolve('') + '/' + config1.dir + '/settings/server/';
 
-                    const content = fs.createReadStream(pathServer + 'server.ts', 'utf8');
-                    const lector = readLine.createInterface({ input: content });
-                    let modifiedContent = '';
-                    lector.on('line', line => {
-                        if (line.includes('// Local import') != false) {
-                            modifiedContent += line;
-                            modifiedContent += '\nimport WebsocketServer from "./ws-server";';
-                        }
-                        else if (line.includes('server: http.Server;') != false) {
-                            modifiedContent += line;
-                            modifiedContent += '\n\twsServer: WebsocketServer;\n';
-                        }
-                        else if (line.includes('new http.Server(this.app);') != false) {
-                            modifiedContent += line;
-                            modifiedContent += '\n\t\tthis.wsServer = new WebsocketServer(this.server);\n';
-                        }
-                        else modifiedContent += line + '\n';
+                        const content = fs.createReadStream(pathServer + 'server.ts', 'utf8');
+                        const lector = readLine.createInterface({ input: content });
+                        let modifiedContent = '';
+                        lector.on('line', line => {
+                            if (line.includes('// Local import') != false) {
+                                modifiedContent += line;
+                                modifiedContent += '\nimport WebsocketServer from "./ws-server";';
+                            }
+                            else if (line.includes(`private pathDefault = '/api/abrev/v1/';`) != false) {
+                                modifiedContent += line;
+                                modifiedContent += '\n\tserver: http.Server;\n';
+                                modifiedContent += '\twsServer: WebsocketServer;\n';
+                            }
+                            else if (line.includes('this.config();') != false) {
+                                modifiedContent += line;
+                                modifiedContent += '\n\t\tthis.server = new http.Server(this.app);\n';
+                                modifiedContent += '\t\tthis.wsServer = new WebsocketServer(this.server);\n';
+                            }
+                            // TODO Cambiar valor para el listen del serivor, ya que para websocket se necisita crear el servidor con http
+                            // else if (line.includes('')) {
 
-                    });
-                    lector.on('close', () => {
-                        fs.writeFileSync(pathServer + 'server.ts', modifiedContent);
-                    });
-                }
-                else
-                    console.log(error || stderr);
-            });
+                            // }
+                            else modifiedContent += line + '\n';
+
+                        });
+                        lector.on('close', () => {
+                            fs.writeFileSync(pathServer + 'server.ts', modifiedContent);
+                        });
+                    }
+                    else
+                        console.log(error || stderr);
+                });
+
+            } else console.error(ansiColors.redBright('A module Websocket has already been initialized'));
+
             break;
 
         case 'db:mysql':
             exec('npm i promise-mysql', (error, stdout, stderr) => {
                 if (!error && stdout != '' && !stderr) {
-                    fs.mkdirSync(path.resolve() + '/' + dir + '/models', { recursive: true });
+                    fs.mkdirSync(path.resolve() + '/' + config1.dir + '/models', { recursive: true });
                     createDatabase();
                     createModelCore();
                 } else

@@ -7,14 +7,10 @@ import { startStructure } from '../cli';
 import { model } from '../cli/model.cli';
 import { route } from '../cli/route.cli';
 import { addUtilities } from '../cli/add-utility';
-import { dir } from '../config/structure-configuration.json';
+import { config1 } from '../config/structure-configuration.json';
 
 import fs from 'fs';
 import path from 'path';
-import readLine from 'readline';
-import { createRouteWs } from '../templates/websocket/route-ws';
-import { createControllerWs } from '../templates/websocket/controller-ws';
-import { createServerHttp } from '../templates/settings/server';
 import { removeModules } from '../cli/remove-modules';
 const main = async () => {
     try {
@@ -50,7 +46,7 @@ COMMAND OPTIONS
             interpretAttibutes(input);
         }
         else if (params == 'entity' || params == 'e') {
-            if (fs.existsSync(path.resolve() + dir + '/models'))
+            if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
                 await entity();
             else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
         }
@@ -61,7 +57,7 @@ COMMAND OPTIONS
             await controller();
         }
         else if (params == 'model' || params == 'm') {
-            if (fs.existsSync(path.resolve() + dir + '/models'))
+            if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
                 await model();
             else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
         }

@@ -1,9 +1,9 @@
 import { createFile } from "ts-code-generator";
-import { dir } from '../config/structure-configuration.json';
+import { config1 } from '../config/structure-configuration.json';
 import fs from 'fs';
 import path from 'path';
 
-const pathIndexApi = path.resolve() + '/' + dir;
+const pathIndexApi = path.resolve() + '/' + config1.dir;
 
 export const createIndexApi = () => {
     const file = createFile({

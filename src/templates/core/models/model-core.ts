@@ -2,9 +2,9 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from '../../../config/structure-configuration.json';
+import { config1 } from '../../../config/structure-configuration.json';
 
-export const pathModelCore = path.resolve() + '/' + dir + '/core/models/';
+export const pathModelCore = path.resolve() + '/' + config1.dir + '/core/models/';
 
 export const createModelCore = () => {
     const file = createFile({
@@ -29,11 +29,22 @@ export const createModelCore = () => {
                     }
                 ],
                 onBeforeWrite: writer => writer.writeLine('//#region Interface'),
+            },
+            {
+                name: 'ISelectReturn',
+                properties: [
+                    {
+                        name: 'array',
+                        type: 'boolean',
+                        isOptional: true
+                    }
+                ],
                 onAfterWrite: writer => writer.writeLine('//#endregion'),
             }
         ],
         classes: [
             {
+                onBeforeWrite: writer => writer.writeLine('const database = new Database();').blankLine(),
                 name: 'Model',
                 isAbstract: true,
                 isExported: true,
@@ -81,7 +92,7 @@ export const createModelCore = () => {
                         writer.writeLine(`this.table = table;
 this.primaryKey = primaryKey;
 this.fields = fields;
-this.database = new Database();`);
+this.database = database;`);
                     }
                 },
                 methods: [
@@ -104,6 +115,7 @@ this.database = new Database();`);
                             writer.writeLine(`try {
     const connected = await this.database.connect();
     const results = await connected.query(sentence, values);
+    connected.release();
     connected.destroy();
     return results;
 } catch (error: any) {
@@ -127,30 +139,13 @@ return await this.executeQuery(sqlQuery);`);
                         }
                     },
                     {
-                        overloadSignatures: [
-                            {
-                                returnType: 'Promise<T>',
-                                typeParameters: [
-                                    {
-                                        name: 'T'
-                                    }
-                                ],
-                                parameters: [
-                                    {
-                                        name: 'value',
-                                        isOptional: true,
-                                        type: 'Partial<IQuerySelect>'
-                                    }
-                                ],
-                            },
-                        ],
                         name: 'select',
                         typeParameters: [
                             {
                                 name: 'T'
                             }
                         ],
-                        returnType: 'Promise<T>',
+                        returnType: 'Promise<T | Array<any>>',
                         isAsync: true,
                         scope: 'public',
                         parameters: [
@@ -158,12 +153,18 @@ return await this.executeQuery(sqlQuery);`);
                                 name: 'value',
                                 isOptional: true,
                                 type: 'Partial<IQuerySelect>'
+                            },
+                            {
+                                name: 'condition',
+                                isOptional: true,
+                                type: 'ISelectReturn'
                             }
                         ],
                         onWriteFunctionBody: writer => {
-                            writer.writeLine(`const sqlQuery: string = this.fillSqlQueryToSelect(value?.select || [], value?.where);
+                            writer.writeLine(`const { array }: any = condition;
+const sqlQuery: string = this.fillSqlQueryToSelect(value?.select || [], value?.where);
 const resultQuery = await this.executeQuery(sqlQuery);
-return resultQuery.length > 1 ? resultQuery : resultQuery[0];`);
+return array != undefined && array == true ? resultQuery : resultQuery.length > 1 ? resultQuery : resultQuery[0];`);
                         }
                     },
                     {
@@ -199,6 +200,16 @@ return await this.executeQuery(sqlQuery);`);
                             writer.writeLine(`const sqlQuery: string = this.fillSqlQueryToDelete(where);
 return await this.executeQuery(sqlQuery);`);
                         }
+                    },
+                    {
+                        name: 'truncate',
+                        returnType: ' Promise<any>',
+                        isAsync: true,
+                        scope: 'public',
+                        onWriteFunctionBody(writer) {
+                            writer.writeLine(`const sqlQuery: string = \`TRUNCATE TABLE \${this.table}\`;
+return await this.executeQuery(sqlQuery);`);
+                        },
                     },
                     {
                         name: 'fillSqlQueryToSelect',

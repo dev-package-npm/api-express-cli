@@ -1,3 +1,57 @@
 {
-    "dir": "src"
+    "config1": {
+        "dir": "test1",
+        "subDir": {
+            "controllers": {},
+            "core": {
+                "controllers": [
+                    "controller.ts"
+                ],
+                "libs": [
+                    "security.ts"
+                ],
+                "models": [
+                    "model.ts"
+                ]
+            },
+            "databases": {
+                "seeders": [],
+                "scripts": []
+            },
+            "helpers": [
+                "common-function.helper.ts",
+                "file.helper.ts"
+            ],
+            "libs": {},
+            "services": {},
+            "models": {},
+            "routes": [
+                "routes.ts"
+            ],
+            "settings": {
+                "server": {
+                    "middlewares": [
+                        "middlewares.ts"
+                    ],
+                    "files": [
+                        "server.ts",
+                        "ws-server.ts"
+                    ]
+                },
+                "files": [
+                    "database.ts",
+                    "multer.ts"
+                ]
+            },
+            "testing": {
+                "routes": [
+                    "routes.ts"
+                ],
+                "controllers": []
+            }
+        },
+        "files": [
+            "index.ts"
+        ]
+    }
 }

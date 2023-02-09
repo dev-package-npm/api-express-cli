@@ -2,29 +2,17 @@ import { createFile } from "ts-code-generator";
 import fs from 'fs';
 import path from 'path';
 // Local
-import { dir } from "../config/structure-configuration.json";
+import { config1 } from "../config/structure-configuration.json";
+import { replaceAll } from "../functions/common";
 
-const pathController = path.resolve() + '/' + dir + '/controllers/';
+const pathController = path.resolve() + '/' + config1.dir + '/controllers/';
 export const createController = (nameClass: string, inputController: string, nameModel?: string) => {
     let file = createFile({
-        fileName: `${inputController}.controller.ts`,
+        fileName: `${replaceAll(inputController, '-')}.controller.ts`,
         classes: [
             {
                 name: nameClass,
-                staticProperties: [
-                    {
-                        name: 'response',
-                        scope: 'private',
-                        type: 'IResponse',
-                        defaultExpression: 'setResponse({})'
-                    },
-                    {
-                        scope: 'private',
-                        name: 'code',
-                        type: 'number',
-                        defaultExpression: '200'
-                    }
-                ],
+                extendsTypes: ['Controller'],
                 methods: [
                     {
                         scope: 'public',
@@ -45,15 +33,16 @@ export const createController = (nameClass: string, inputController: string, nam
                             writer.writeLine('const { } = req.body;');
                             writer.write('try').block(() => {
                                 writer.writeLine('//#region Validate params');
-                                writer.write('const validation = await validateParams(req.body, {});');
-                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
+                                writer.write('const validation = await this.validateParams(req.body, {});');
+                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
                                 writer.writeLine('//#region Validate params');
                                 writer.blankLine();
-                                writer.writeLine(`return res.status(${nameClass}.code).json(${nameClass}.response);`);
+                                writer.writeLine(`this.setResponse({ text: 'Registro creado' }, 201);`);
+                                writer.writeLine(`return res.status(this.code).json(this.response);`);
 
                             });
                             writer.write('catch (error: any) ').block(() => {
-                                writer.writeLine(`return res.status(500).json(setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
                             })
                         }
                     },
@@ -76,15 +65,15 @@ export const createController = (nameClass: string, inputController: string, nam
                             writer.writeLine('const { } = req.query;');
                             writer.write('try').block(() => {
                                 writer.writeLine('//#region Validate params');
-                                writer.write('const validation = await validateParams(req.query, {});');
-                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
+                                writer.write('const validation = await this.validateParams(req.query, {});');
+                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
                                 writer.writeLine('//#region Validate params');
                                 writer.blankLine();
-                                writer.writeLine(`return res.status(${nameClass}.code).json(${nameClass}.response);`);
-
+                                writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
+                                writer.writeLine(`return res.status(this.code).json(this.response);`);
                             });
                             writer.write('catch (error: any) ').block(() => {
-                                writer.writeLine(`return res.status(500).json(setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
                             })
                         }
                     },
@@ -107,15 +96,15 @@ export const createController = (nameClass: string, inputController: string, nam
                             writer.writeLine('const { } = req.body;');
                             writer.write('try').block(() => {
                                 writer.writeLine('//#region Validate params');
-                                writer.write('const validation = await validateParams(req.body, {});');
-                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
+                                writer.write('const validation = await this.validateParams(req.body, {});');
+                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
                                 writer.writeLine('//#region Validate params');
                                 writer.blankLine();
-                                writer.writeLine(`return res.status(${nameClass}.code).json(${nameClass}.response);`);
-
+                                writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
+                                writer.writeLine(`return res.status(this.code).json(this.response);`);
                             });
                             writer.write('catch (error: any) ').block(() => {
-                                writer.writeLine(`return res.status(500).json(setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
                             })
                         }
                     },
@@ -138,15 +127,16 @@ export const createController = (nameClass: string, inputController: string, nam
                             writer.writeLine('const { } = req.query;');
                             writer.write('try').block(() => {
                                 writer.writeLine('//#region Validate params');
-                                writer.write('const validation = await validateParams(req.query, {});');
-                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
+                                writer.write('const validation = await this.validateParams(req.query, {});');
+                                writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
                                 writer.writeLine('//#region Validate params');
                                 writer.blankLine();
-                                writer.writeLine(`return res.status(${nameClass}.code).json(${nameClass}.response);`);
+                                writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
+                                writer.writeLine(`return res.status(this.code).json(this.response);`);
 
                             });
                             writer.write('catch (error: any) ').block(() => {
-                                writer.writeLine(`return res.status(500).json(setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
                             })
                         }
                     }
@@ -162,16 +152,12 @@ export const createController = (nameClass: string, inputController: string, nam
             },
             {
                 onBeforeWrite: writer => writer.writeLine('// Local'),
-                namedImports: [{ name: ' validateParams ' }],
-                moduleSpecifier: '../core/helpers/request-http-params.helper'
-            },
-            {
-                moduleSpecifier: '../core/helpers/response-http.helper',
-                namedImports: [{ name: ' setResponse ' }],
+                namedImports: [{ name: ' Controller ' }],
+                moduleSpecifier: '../core/controllers/controller',
                 onAfterWrite: writer => {
                     writer.writeLine('// Models');
                     if (nameModel != undefined) {
-                        writer.writeLine(`import { ${nameModel} } from "../models/${inputController}.model";`);
+                        writer.writeLine(`import { ${nameModel} } from "../models/${replaceAll(inputController, '-')}.model";`);
                     }
                     writer.writeLine('//#endregion');
                     writer.blankLine();

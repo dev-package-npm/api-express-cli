@@ -97,6 +97,6 @@
   },
   "include": [
     "src",
-    "test"
+    "test1"
   ]
 }
