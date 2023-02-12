@@ -1,9 +1,7 @@
 import inquirer from 'inquirer';
 import { exec } from 'child_process';
 import ansiColors from 'ansi-colors';
-import { config1 } from '../config/structure-configuration.json';
 import fs, { promises } from 'fs';
-import { exit } from 'process';
 import { pathModelCore } from '../templates/core/models/model-core';
 import { isExistModuleDatabase, pathDatabase } from '../templates/settings/database';
 import { pathModel } from '../templates/model';
