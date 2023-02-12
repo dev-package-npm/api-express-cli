@@ -11,20 +11,19 @@ import { createEnvFile } from '../templates/env';
 import ansiColors from 'ansi-colors';
 import { createControllerCore } from '../templates/core/controllers/controller-core';
 import { createSecurityCore } from '../templates/core/libs/security';
+import { addLineFilePackage } from '../templates/package';
 
 export const startStructure = () => {
     return new Promise((resolve, reject) => {
         const pathWork = path.resolve() + '/' + config1.dir;
 
-        //TODO pendiente por comentar
-        fs.rmSync(pathWork, { recursive: true, force: true });
         if (!fs.existsSync(pathWork)) {
-            const types = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript ';
+            const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
             const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
             console.log('Installing package...');
             exec('npm i ' + _package, (error, stdout, stderr) => {
                 if (!error && stdout != '' && !stderr) {
-                    exec('npm i -D ' + types, (error, stdout, stderr) => {
+                    exec('npm i -D ' + devPackages, (error, stdout, stderr) => {
                         console.log(ansiColors.blueBright('✓ Done'));
                         if (!error && stdout != '' && !stderr) {
                             const folders = Object.keys(config1.subDir).filter(value => value != 'models' && value != 'databases');
@@ -55,7 +54,19 @@ export const startStructure = () => {
                             createMiddlewares();
                             createServerHttp();
                             createIndexApi();
-                            resolve(true);
+                            if (!fs.existsSync(path.resolve() + '/tsconfig.json')) {
+                                exec(`npx tsc --init --target ES2022 --removeComments true --outDir ./dist`, (error, stdout, tderr) => {
+                                    if (!error && stdout != '' && !tderr) {
+                                        addLineFilePackage();
+                                        resolve(true);
+                                    }
+                                    else {
+                                        console.log(error || stderr);
+                                        reject(false);
+                                    }
+                                });
+
+                            } else resolve(true);
                         } else {
                             console.log(error || stderr);
                             reject(false);
