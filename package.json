@@ -1,21 +1,21 @@
 {
   "name": "api-express-cli",
-  "version": "1.0.7-beta-1",
+  "version": "1.0.7-beta-2",
   "description": "api-express-cli is an tool with an integrated cli, which allows generating models, rutes, and controllers",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "bin": {
-    "aec": "./build/src/bin/aec.js",
-    "api-express-cli": "./build/src/bin/aec.js"
+    "aec": "./build/lib/bin/aec.js",
+    "api-express-cli": "./build/lib/bin/aec.js"
   },
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc -w",
     "dev:run-server": "nodemon ./build/test1/index",
     "prepare": "npm run build && npm run cp-file-txt",
-    "cp-file-txt": "cp ./src/templates/core/controllers/controller-base.txt ./build/src/templates/core/controllers/",
+    "cp-file-txt": "cp ./lib/templates/core/controllers/controller-base.txt ./build/lib/templates/core/controllers/",
     "test": "node ./build/test/blah.test.js"
   },
   "repository": {
