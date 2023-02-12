@@ -20,7 +20,7 @@ export const startStructure = () => {
         if (!fs.existsSync(pathWork)) {
             const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
             const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
-            console.log('Installing package...');
+            console.log('Installing packages...');
             exec('npm i ' + _package, (error, stdout, stderr) => {
                 if (!error && stdout != '' && !stderr) {
                     exec('npm i -D ' + devPackages, (error, stdout, stderr) => {

@@ -13,7 +13,7 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc -w",
-    "dev:run-server": "nodemon ./build/test1/index",
+    "dev:run-server": "nodemon ./build/src/index",
     "prepare": "npm run build && npm run cp-file-txt",
     "cp-file-txt": "cp ./lib/templates/core/controllers/controller-base.txt ./build/lib/templates/core/controllers/",
     "test": "node ./build/test/blah.test.js"
