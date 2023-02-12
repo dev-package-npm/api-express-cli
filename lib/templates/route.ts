@@ -101,17 +101,17 @@ export const createRouter = async (nameRoute: string, inputRouter: string, nameC
 
 const addLineRoute = async (inputRouter: string, nameRoute: string) => {
     const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
-    let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
+    let rl = readLine.createInterface({ input: content, crlfDelay: Infinity });
     let modifiedContent = '';
     const endPonit = replaceAll(inputRouter, '-');
     const importRoute = `\nimport ${nameRoute} from './${replaceAll(inputRouter, '-')}.route';\n`;
     const routerUse = `\nrouter.use('/${endPonit.charAt(endPonit.length - 1) == 's' ? endPonit : endPonit + 's'}', ${nameRoute});\n`;
     let controlWrite = false;
-    controlWrite = await isExistsWord(lr, [importRoute, routerUse, `${nameRoute}`]);
+    controlWrite = await isExistsWord(rl, [importRoute, routerUse, `${nameRoute}`]);
     if (!controlWrite) {
         const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
-        let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
-        lr.on('line', line => {
+        let rl = readLine.createInterface({ input: content, crlfDelay: Infinity });
+        rl.on('line', line => {
             if (line.includes('//#region rutes') != false) {
                 modifiedContent += line;
                 modifiedContent += importRoute;
@@ -123,7 +123,7 @@ const addLineRoute = async (inputRouter: string, nameRoute: string) => {
             else modifiedContent += line + '\n';
         });
 
-        lr.on('close', () => {
+        rl.on('close', () => {
             fs.writeFileSync(pathRoute + 'routes.ts', modifiedContent);
         });
     } else console.log(ansiColors.redBright(`A route with the name '${inputRouter}' already exists`));

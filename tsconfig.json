@@ -97,6 +97,6 @@
   },
   "include": [
     "lib",
-    "test1"
+    "src"
   ]
 }

@@ -26,8 +26,8 @@ const replaceAll = (data: string, key: '-' | '_' | ' ') => {
     return data;
 }
 
-const isExistsWord = async (lr: readLine.Interface, words: Array<string>): Promise<boolean> => {
-    for await (const line of lr) {
+const isExistsWord = async (rl: readLine.Interface, words: Array<string>): Promise<boolean> => {
+    for await (const line of rl) {
         for (let index = 0; index < words.length; index++) {
             if (line.includes(words[index].replaceAll('\n', '')) != false) {
                 return true;

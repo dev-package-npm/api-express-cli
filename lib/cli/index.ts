@@ -16,7 +16,6 @@ import { addLineFilePackage } from '../templates/package';
 export const startStructure = () => {
     return new Promise((resolve, reject) => {
         const pathWork = path.resolve() + '/' + config1.dir;
-
         if (!fs.existsSync(pathWork)) {
             const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
             const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
@@ -55,9 +54,10 @@ export const startStructure = () => {
                             createServerHttp();
                             createIndexApi();
                             if (!fs.existsSync(path.resolve() + '/tsconfig.json')) {
-                                exec(`npx tsc --init --target ES2022 --removeComments true --outDir ./dist`, (error, stdout, tderr) => {
+                                const folderBuild = 'dist';
+                                exec(`npx tsc --init --target ES2022 --removeComments true --outDir ./${folderBuild}`, (error, stdout, tderr) => {
                                     if (!error && stdout != '' && !tderr) {
-                                        addLineFilePackage();
+                                        addLineFilePackage(folderBuild);
                                         resolve(true);
                                     }
                                     else {
