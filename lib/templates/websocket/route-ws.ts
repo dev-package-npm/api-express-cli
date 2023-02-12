@@ -11,7 +11,7 @@ import ansiColors from "ansi-colors";
 const pathRouteWs = path.resolve('') + '/' + config1.dir + '/testing/routes/';
 let lineToAdd = {
     import_ws_router: '\nimport wsRouter from "./websocket.route";\n',
-    use_ws_router: `\ntestRouter.use('ws', wsRouter);\n`
+    use_ws_router: `\ntestRouter.use('/ws', wsRouter);\n`
 };
 
 export const createRouteWs = async () => {

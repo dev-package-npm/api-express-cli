@@ -14,6 +14,7 @@ import path from 'path';
 import { removeModules } from '../cli/remove-modules.cli';
 import { createSecurityCore } from '../templates/core/libs/security';
 import { addLineFilePackage } from '../templates/package';
+import { addLineEnv, removeLineEnv } from '../templates/env';
 const main = async () => {
     try {
         process.title = "aec " + Array.from(process.argv).slice(2).join(" ");
@@ -70,7 +71,6 @@ COMMAND OPTIONS
             await removeModules(input.slice(2));
         }
         else if (params == '-v' || params == '--version') {
-            addLineFilePackage('dist');
             console.log('Version', ansiColors.cyan(version));
         }
         else console.log(ansiColors.yellowBright('Command is not valid'));

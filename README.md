@@ -10,26 +10,6 @@ Install `api-express-cli` in dev dependecies:
 npm i -D api-express-cli
 ```
 
-Initialize typscript:
-
-```
-npx tsc --init
-```
-
-> Uncomment `outDir `in the generated `tsconfig.json `file and put `./dist.`
->
-> Also look for `target `and put `ES2022`.
-
-Add the following scripts in package.json:
-
-```json
-"scirpts": {
-"start":"node ./dist/index",
-"watch-node": "nodemon ./dist/index",
-"watch-ts": "npx tsc -w"
-}
-```
-
 Initialize project:
 
 ```bash
@@ -43,15 +23,15 @@ npx aec init
 >
 > ![1663281512795](image/README/1663281512795.png)
 
-| Commands              |  Value  |       Params       | Example                                            | Description                                                                                    |
-| :-------------------- | :-----: | :----------------: | :------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| `npx aec init`        | `--add` | `db:mysq` or `ws`  | `npx aec init --add db:mysql` or `npx aec init ws` | Add new utilities when the value of `--add` is passed. You can put as many as there are        |
-| `npx aec route`       |         |                    | `npx aec route` or `npx aec r `                    | Create a route with the given name                                                             |
-| `npx aec controller ` |         |                    | `npx aec controller ` or `npx aec c `              | Create a controller with the given name                                                        |
-| `npx aec model`       |         |                    | `npx aec model ` or `npx aec m `                   | Create a model with the given name, as long as a database is configured                        |
-| `npx aec entity`      |         |                    | `npx aec entity ` or `npx aec e `                  | Create an entity with the given name: (controller, route, model)                               |
-| `npx aec remove`      |         | `db:mysq` or `ws ` | `npx aec remove db:mysql` or `npx aec rm db:mysql` | Removes one of the utilities that is added. At the moment you can only delete database utility |
-| `npx aec --help`      |         |                    | `npx aec -h` or `npx aec`                          | Show command help                                                                              |
+| Commands                |   Value   |         Params         | Example                                                | Description                                                                                    |
+| :---------------------- | :-------: | :--------------------: | :----------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| `npx aec init`        | `--add` | `db:mysq` or `ws` | `npx aec init --add db:mysql` or `npx aec init ws` | Add new utilities when the value of `--add` is passed. You can put as many as there are      |
+| `npx aec route`       |          |                        | `npx aec route` or `npx aec r `                  | Create a route with the given name                                                             |
+| `npx aec controller ` |          |                        | `npx aec controller ` or `npx aec c `              | Create a controller with the given name                                                        |
+| `npx aec model`       |          |                        | `npx aec model ` or `npx aec m `                   | Create a model with the given name, as long as a database is configured                        |
+| `npx aec entity`      |          |                        | `npx aec entity ` or `npx aec e `                  | Create an entity with the given name: (controller, route, model)                               |
+| `npx aec remove`      |          | `db:mysq` or `ws ` | `npx aec remove db:mysql` or `npx aec rm db:mysql` | Removes one of the utilities that is added. At the moment you can only delete database utility |
+| `npx aec --help`      |          |                        | `npx aec -h` or `npx aec`                          | Show command help                                                                              |
 
 **Nota:** you can use `aec` or `api-express-cli`.
 
@@ -61,7 +41,9 @@ npx aec init
 >
 > - Transpile code from ts to js.
 >   > `npm run watch-ts`
+>   >
 > - Start server.
->   > `npm run watch-node`
+>   > `npm run dev:watch-server`
+>   >
 
 > You can then see if it is operating correctly by putting this `http://localhost:3000` in your browser.
