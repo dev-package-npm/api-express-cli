@@ -161,10 +161,9 @@ return await this.executeQuery(sqlQuery);`);
                             }
                         ],
                         onWriteFunctionBody: writer => {
-                            writer.writeLine(`const { array }: any = condition;
-const sqlQuery: string = this.fillSqlQueryToSelect(value?.select || [], value?.where);
+                            writer.writeLine(`const sqlQuery: string = this.fillSqlQueryToSelect(value?.select || [], value?.where);
 const resultQuery = await this.executeQuery(sqlQuery);
-return array != undefined && array == true ? resultQuery : resultQuery.length > 1 ? resultQuery : resultQuery[0];`);
+return condition?.array != undefined && condition?.array == true ? resultQuery : resultQuery.length > 1 ? resultQuery : resultQuery[0];`);
                         }
                     },
                     {
