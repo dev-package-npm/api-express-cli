@@ -4,10 +4,11 @@ import path from 'path';
 // Local
 import { config1 } from '../../config/structure-configuration.json';
 import { pathModelCore } from "../core/models/model-core";
+import { addLineEnv } from "../env";
 
 export const pathDatabase = path.resolve() + '/' + config1.dir + '/settings/';
 
-export const createDatabase = (fileName?: string) => {
+export const createDatabase = async (fileName?: string) => {
     const file = createFile({
         fileName: fileName == undefined ? 'database.ts' : fileName,
         imports: [
@@ -85,6 +86,7 @@ export const createDatabase = (fileName?: string) => {
     if (!fs.existsSync(pathDatabase))
         fs.mkdirSync(pathDatabase, { recursive: true });
     fs.writeFileSync(pathDatabase + file.fileName, file.write());
+    await addLineEnv();
 };
 
 export const isExistModuleDatabase = (): boolean => {

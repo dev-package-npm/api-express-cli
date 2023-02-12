@@ -8,6 +8,7 @@ import { pathModel } from '../templates/model';
 import { isExistModuleWs, removeServerWs } from '../templates/websocket/server-ws';
 import { removeControllerWs } from '../templates/websocket/controller-ws';
 import { removeRouteWs } from '../templates/websocket/route-ws';
+import { removeLineEnv } from '../templates/env';
 
 export const removeModules = async (params: Array<string>) => {
     // console.log(arrayParams.length);
@@ -48,6 +49,7 @@ const interpretAnswer = async (answer: string) => {
                                 await promises.unlink(pathModelCore + 'models.ts')
                                 if (fs.readdirSync(pathModelCore).length == 0)
                                     fs.rmdirSync(pathModelCore);
+                                await removeLineEnv();
                             };
                         } else
                             console.log(error || stderr);
