@@ -92,39 +92,39 @@ export const createRouter = async (nameRoute: string, inputRouter: string, nameC
             defaultExportExpression: `${nameRoute}`
         });
     if (fs.existsSync(pathRoute)) {
-        {
-            fs.writeFileSync(`${pathRoute}${file.fileName}`, file.write());
+        fs.writeFileSync(`${pathRoute}${file.fileName}`, file.write());
 
-            const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
-            let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
-            let modifiedContent = '';
-            const endPonit = replaceAll(inputRouter, '-');
-            const importRoute = `\nimport ${nameRoute} from './${replaceAll(inputRouter, '-')}.route';\n`;
-            const routerUse = `\nrouter.use('${endPonit.charAt(endPonit.length - 1) == 's' ? endPonit : endPonit + 's'}', ${nameRoute});\n`;
-            let controlWrite = false;
-            controlWrite = await isExistsWord(lr, [importRoute, routerUse, `${nameRoute}`]);
-            if (!controlWrite) {
-                const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
-                let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
-                lr.on('line', line => {
-                    if (line.includes('//#region rutes') != false) {
-                        modifiedContent += line;
-                        modifiedContent += importRoute;
-                    }
-                    else if (line.includes(`// End points for entities`) != false) {
-                        modifiedContent += line;
-                        modifiedContent += routerUse;
-                    }
-                    else modifiedContent += line + '\n';
-                });
-
-                lr.on('close', () => {
-                    fs.writeFileSync(pathRoute + 'routes.ts', modifiedContent);
-                });
-            } else console.log(ansiColors.redBright(`A route with the name '${inputRouter}' already exists`));
-
-        }
+        await addLineRoute(inputRouter, nameRoute);
     }
     else console.log("You must initialize your project");
 }
 
+const addLineRoute = async (inputRouter: string, nameRoute: string) => {
+    const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
+    let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
+    let modifiedContent = '';
+    const endPonit = replaceAll(inputRouter, '-');
+    const importRoute = `\nimport ${nameRoute} from './${replaceAll(inputRouter, '-')}.route';\n`;
+    const routerUse = `\nrouter.use('/${endPonit.charAt(endPonit.length - 1) == 's' ? endPonit : endPonit + 's'}', ${nameRoute});\n`;
+    let controlWrite = false;
+    controlWrite = await isExistsWord(lr, [importRoute, routerUse, `${nameRoute}`]);
+    if (!controlWrite) {
+        const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
+        let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
+        lr.on('line', line => {
+            if (line.includes('//#region rutes') != false) {
+                modifiedContent += line;
+                modifiedContent += importRoute;
+            }
+            else if (line.includes(`// End points for entities`) != false) {
+                modifiedContent += line;
+                modifiedContent += routerUse;
+            }
+            else modifiedContent += line + '\n';
+        });
+
+        lr.on('close', () => {
+            fs.writeFileSync(pathRoute + 'routes.ts', modifiedContent);
+        });
+    } else console.log(ansiColors.redBright(`A route with the name '${inputRouter}' already exists`));
+}

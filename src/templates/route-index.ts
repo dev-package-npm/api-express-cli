@@ -36,20 +36,20 @@ export const routeIndex = (options: number) => {
                     if (options == 0) {
                         writer.writeLine('//#region Definition of routes for the api');
                         writer.writeLine('// Testing');
-                        writer.writeLine('router.use(\'testing\', testRouter);');
+                        writer.writeLine('router.use(\'/testing\', testRouter);');
                         writer.writeLine('// End points for entities');
                         writer.writeLine('// Example');
-                        writer.writeLine('//router.use(\'users\', userRouter);');
+                        writer.writeLine('//router.use(\'/users\', userRouter);');
                     }
                     else if (options == 1) {
                         writer.writeLine('//#region  Definition of routes for tests');
                         writer.writeLine('//Example');
-                        writer.writeLine('//router.use(\'users\', testUserRouter);');
+                        writer.writeLine('//router.use(\'/users\', testUserRouter);');
                     }
                     else if (options == 2) {
                         writer.writeLine('//#region  Definition of routes for services');
                         writer.writeLine('// Example');
-                        writer.writeLine('//router.use(\'auth\', authRouter);');
+                        writer.writeLine('//router.use(\'/auth\', authRouter);');
                     }
                     writer.writeLine('//#endregion');
                 }
