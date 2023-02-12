@@ -12,7 +12,7 @@ import { config1 } from '../config/structure-configuration.json';
 import fs from 'fs';
 import path from 'path';
 import { removeModules } from '../cli/remove-modules.cli';
-import { createEnvFile } from '../templates/env';
+import { createSecurityCore } from '../templates/core/libs/security';
 const main = async () => {
     try {
         process.title = "aec " + Array.from(process.argv).slice(2).join(" ");
@@ -69,6 +69,7 @@ COMMAND OPTIONS
             await removeModules(input.slice(2));
         }
         else if (params == '-v' || params == '--version') {
+            createSecurityCore();
             console.log('Version', ansiColors.cyan(version));
         }
         else console.log(ansiColors.yellowBright('Command is not valid'));
