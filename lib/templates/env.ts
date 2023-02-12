@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 
 export const createEnvFile = () => {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(Date(), salt);
     const content = `# system environments
 NODE_ENV=development
 # NODE_ENV=production
@@ -21,7 +24,7 @@ HOSTNAME_APP_PRODUCTION=example.bsacademy.com
 #DB_NAME_PRODUCTION=db_test
 
 #Change key for each project
-KEY='27KUqw*i"8v^IKs1xuXiqw*i"8v^IKs^IKs1xuXiqw*i"8v'`;
+KEY='${hash}'`;
 
     fs.writeFileSync(path.resolve() + '/.env', content);
 };

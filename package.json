@@ -1,6 +1,6 @@
 {
   "name": "api-express-cli",
-  "version": "1.0.7-beta-2",
+  "version": "1.0.7-beta-3",
   "description": "api-express-cli is an tool with an integrated cli, which allows generating models, rutes, and controllers",
   "main": "index.js",
   "directories": {
