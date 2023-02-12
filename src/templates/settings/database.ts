@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 // Local
 import { config1 } from '../../config/structure-configuration.json';
+import { pathModelCore } from "../core/models/model-core";
 
 export const pathDatabase = path.resolve() + '/' + config1.dir + '/settings/';
 
@@ -85,3 +86,7 @@ export const createDatabase = (fileName?: string) => {
         fs.mkdirSync(pathDatabase, { recursive: true });
     fs.writeFileSync(pathDatabase + file.fileName, file.write());
 };
+
+export const isExistModuleDatabase = (): boolean => {
+    return fs.existsSync(pathDatabase + 'database.ts') && fs.existsSync(pathModelCore + 'models.ts');
+}

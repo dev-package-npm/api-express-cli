@@ -20,11 +20,7 @@ export const createServerHttp = async () => {
                 defaultImportName: 'express',
                 onBeforeWrite: writer => {
                     writer.writeLine('//#region imports npm modules');
-                }
-            },
-            {
-                moduleSpecifier: 'http',
-                defaultImportName: 'http',
+                },
                 onAfterWrite: writer => writer.writeLine('// Local import')
             },
             {
@@ -107,3 +103,7 @@ else
     }
     await fs.promises.writeFile(pathServer + file.fileName, file.write());
 };
+
+export const editFileServer = async () => {
+
+}

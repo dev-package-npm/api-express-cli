@@ -5,7 +5,7 @@ import path from 'path';
 import { replaceAll } from "../functions/common";
 import { config1 } from '../config/structure-configuration.json';
 
-const pathModel = path.resolve() + '/' + config1.dir + '/models';
+export const pathModel = path.resolve() + '/' + config1.dir + '/models';
 export const createModel = (nameClass: string, inputModel: string) => {
     const file = createFile({
         fileName: `${replaceAll(inputModel, '-')}.model.ts`,

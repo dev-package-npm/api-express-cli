@@ -5,12 +5,12 @@ import readLine from 'readline';
 
 // Local
 import { config1 } from '../config/structure-configuration.json';
-import { replaceAll } from "../functions/common";
+import { isExistsWord, replaceAll } from "../functions/common";
 import ansiColors from "ansi-colors";
 
 const pathRoute = path.resolve() + '/' + config1.dir + '/routes/';
 
-export const createRouter = (nameRoute: string, inputRouter: string, nameController?: string) => {
+export const createRouter = async (nameRoute: string, inputRouter: string, nameController?: string) => {
     let file;
     if (nameController != undefined) {
         let variableController = nameController?.charAt(0).toLowerCase() + nameController?.slice(1);
@@ -96,21 +96,17 @@ export const createRouter = (nameRoute: string, inputRouter: string, nameControl
             fs.writeFileSync(`${pathRoute}${file.fileName}`, file.write());
 
             const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
-            const lector = readLine.createInterface({ input: content });
+            let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
             let modifiedContent = '';
             const endPonit = replaceAll(inputRouter, '-');
             const importRoute = `\nimport ${nameRoute} from './${replaceAll(inputRouter, '-')}.route';\n`;
             const routerUse = `\nrouter.use('${endPonit.charAt(endPonit.length - 1) == 's' ? endPonit : endPonit + 's'}', ${nameRoute});\n`;
             let controlWrite = false;
-            lector.on('line', line => {
-                if (line.includes(inputRouter) != false || line.includes(routerUse) != false) {
-                    controlWrite = true;
-                    console.log(controlWrite);
-                }
-            });
-            console.log('2', controlWrite);
-            if (controlWrite) {
-                lector.on('line', line => {
+            controlWrite = await isExistsWord(lr, [importRoute, routerUse, `${nameRoute}`]);
+            if (!controlWrite) {
+                const content = fs.createReadStream(pathRoute + 'routes.ts', 'utf8');
+                let lr = readLine.createInterface({ input: content, crlfDelay: Infinity });
+                lr.on('line', line => {
                     if (line.includes('//#region rutes') != false) {
                         modifiedContent += line;
                         modifiedContent += importRoute;
@@ -122,15 +118,13 @@ export const createRouter = (nameRoute: string, inputRouter: string, nameControl
                     else modifiedContent += line + '\n';
                 });
 
-                lector.on('close', () => {
+                lr.on('close', () => {
                     fs.writeFileSync(pathRoute + 'routes.ts', modifiedContent);
                 });
             } else console.log(ansiColors.redBright(`A route with the name '${inputRouter}' already exists`));
+
         }
     }
-    else console.log("you must initialize your project");
+    else console.log("You must initialize your project");
 }
 
-const addRoute = () => {
-
-}

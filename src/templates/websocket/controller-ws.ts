@@ -33,19 +33,11 @@ export const createControllerWs = () => {
                 ]
             },
             {
-                moduleSpecifier: '../../core/helpers/request-http-params.helper',
+                moduleSpecifier: '../../core/controllers/controller',
                 namedImports: [
-                    { name: ' validateParams ' }
-                ],
-                onBeforeWrite: writer => {
-                    writer.writeLine('// Local imports');
-                }
-            },
-            {
-                moduleSpecifier: '../../core/helpers/response-http.helper',
-                namedImports: [
-                    { name: ' IResponse' },
-                    { name: 'setResponse ' }
+                    {
+                        name: ' Controller '
+                    }
                 ]
             },
             {
@@ -58,18 +50,7 @@ export const createControllerWs = () => {
             {
                 name: 'WebsocketController',
                 isExported: true,
-                staticProperties: [
-                    {
-                        name: 'response: IResponse',
-                        scope: 'private',
-                        defaultExpression: ' setResponse({})'
-                    },
-                    {
-                        name: 'code: number',
-                        defaultExpression: '200',
-                        scope: 'private'
-                    }
-                ],
+                extendsTypes: ['Controller'],
                 methods: [
                     {
                         scope: 'public',
@@ -88,18 +69,16 @@ export const createControllerWs = () => {
                         onWriteFunctionBody: writer => writer.writeLine(`const { message } = req.body;
 try {
     //#region Validate params
-    const validation = await validateParams(req.body, { requiredParameters: { message } });
+    const validation = await this.validateParams(req.body, { requiredParameters: { message } });
     if (validation != true)
-        return res.status(400).json(setResponse({ text: 'Parameters are invalid', errors: validation, status: 700 }));
+        return res.status(400).json(this.setResponse({ text: 'Parameters are invalid', errors: validation, status: 700 }));
     //#endregion
     WebsocketServer.io.emit('message', message);
     WebsocketServer.io.emit('data', message);
-    WebsocketController.response = setResponse({ text: 'Successfully sent' });
-    return res.status(WebsocketController.code).json(WebsocketController.response);
+    this.setResponse({ text: 'Successfully sent' }, 200);
+    return res.status(this.code).json(this.response);
 } catch (error: any) {
-    return res.status(500).json(setResponse({
-        text: 'An unexpected error has occurred', errors: error.message, status: 801
-    }));
+    return res.status(500).json(this.setResponse({ text: 'An unexpected error has occurred', errors: error.message, status: 801 }));
 }`)
                     },
                     {
@@ -135,3 +114,9 @@ socketIo.on('connection', (socket) => {
     }
     fs.writeFileSync(pathControllerWs + file.fileName, file.write());
 };
+
+export const removeControllerWs = () => {
+    if (fs.existsSync(pathControllerWs + 'websocket.controller.ts')) {
+        fs.rmSync(pathControllerWs + 'websocket.controller.ts', { recursive: true });
+    }
+}

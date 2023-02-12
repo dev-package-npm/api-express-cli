@@ -6,12 +6,12 @@ import { entity } from '../cli/entity.cli';
 import { startStructure } from '../cli';
 import { model } from '../cli/model.cli';
 import { route } from '../cli/route.cli';
-import { addUtilities } from '../cli/add-utility';
+import { addUtilities } from '../cli/add-utility-modules';
 import { config1 } from '../config/structure-configuration.json';
 
 import fs from 'fs';
 import path from 'path';
-import { removeModules } from '../cli/remove-modules';
+import { removeModules } from '../cli/remove-modules.cli';
 const main = async () => {
     try {
         process.title = "aec " + Array.from(process.argv).slice(2).join(" ");

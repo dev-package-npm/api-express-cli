@@ -1,3 +1,5 @@
+import readLine from 'readline';
+
 const getIndexSeparator = (data: string): { separator: string; index: number } => {
     let key = ['-', ' ', '_'];
     for (let index = 0; index < key.length; index++) {
@@ -24,4 +26,15 @@ const replaceAll = (data: string, key: '-' | '_' | ' ') => {
     return data;
 }
 
-export { getIndexSeparator, addPrefix, replaceAll };
+const isExistsWord = async (lr: readLine.Interface, words: Array<string>): Promise<boolean> => {
+    for await (const line of lr) {
+        for (let index = 0; index < words.length; index++) {
+            if (line.includes(words[index].replaceAll('\n', '')) != false) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export { getIndexSeparator, addPrefix, replaceAll, isExistsWord };
