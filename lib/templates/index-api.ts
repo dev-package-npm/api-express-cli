@@ -19,7 +19,7 @@ export const createIndexApi = () => {
                 declarationType: 'const',
                 name: 'server',
                 type: 'Server',
-                defaultExpression: 'new Server();',
+                defaultExpression: 'new Server()',
                 onAfterWrite: writer => {
                     writer.blankLine();
                     writer.writeLine('server.start()');
