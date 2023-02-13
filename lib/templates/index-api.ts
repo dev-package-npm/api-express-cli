@@ -22,7 +22,7 @@ export const createIndexApi = () => {
                 defaultExpression: 'new Server();',
                 onAfterWrite: writer => {
                     writer.blankLine();
-                    writer.writeLine('server.start();');
+                    writer.writeLine('server.start()');
                 }
             }
         ]

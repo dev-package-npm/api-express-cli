@@ -90,5 +90,5 @@ export const createDatabase = async (fileName?: string) => {
 };
 
 export const isExistModuleDatabase = (): boolean => {
-    return fs.existsSync(pathDatabase + 'database.ts') && fs.existsSync(pathModelCore + 'models.ts');
+    return fs.existsSync(pathDatabase + 'database.ts') && fs.existsSync(pathModelCore + config1.subDir.core.models[0]);
 }

@@ -8,7 +8,7 @@ export const pathModelCore = path.resolve() + '/' + config1.dir + '/core/models/
 
 export const createModelCore = () => {
     const file = createFile({
-        fileName: 'models.ts',
+        fileName: config1.subDir.core.models[0],
         imports: [
             {
                 moduleSpecifier: '../../settings/database',

@@ -12,17 +12,6 @@ import { createModelCore } from '../templates/core/models/model-core';
 import { createDatabase, isExistModuleDatabase } from '../templates/settings/database';
 import { isExistsWord } from '../functions/common';
 
-// #!/usr/bin / env node
-// import { createDatabase } from '../src/templates/settings/database';
-// import { exec } from 'child_process';
-// import { createServerHttp } from '../src/templates/settings/server';
-// createDatabase();
-// exec('npm i promise-mysql', (error, stdout, stderr) => {
-//     console.log(stdout);
-// });
-
-
-
 export const addUtilities = async (params: string) => {
     // console.log(arrayParams.length);
     let choices = [];

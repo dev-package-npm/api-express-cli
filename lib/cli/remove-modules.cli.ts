@@ -9,6 +9,7 @@ import { isExistModuleWs, removeServerWs } from '../templates/websocket/server-w
 import { removeControllerWs } from '../templates/websocket/controller-ws';
 import { removeRouteWs } from '../templates/websocket/route-ws';
 import { removeLineEnv } from '../templates/env';
+import { config1 } from '../config/structure-configuration.json';
 
 export const removeModules = async (params: Array<string>) => {
     // console.log(arrayParams.length);
@@ -38,15 +39,15 @@ const interpretAnswer = async (answer: string) => {
     switch (answer) {
         case 'db:mysql':
             if (fs.existsSync(pathModel) && fs.readdirSync(pathModel).length == 0) {
-                if (fs.existsSync(pathDatabase + 'database.ts') && fs.existsSync(pathModelCore + 'models.ts')) {
+                if (fs.existsSync(pathDatabase + 'database.ts') && fs.existsSync(pathModelCore + config1.subDir.core.models[0])) {
                     console.log("Uninstall  packages...");
                     exec('npm r promise-mysql', async (error, stdout, stderr) => {
                         console.log(ansiColors.blueBright('✓ Done'));
                         if (!error && stdout != '' && !stderr) {
                             if (fs.existsSync(pathDatabase + 'database.ts')) await promises.unlink(pathDatabase + 'database.ts');
 
-                            if (fs.existsSync(pathModelCore + 'models.ts')) {
-                                await promises.unlink(pathModelCore + 'models.ts')
+                            if (fs.existsSync(pathModelCore + config1.subDir.core.models[0])) {
+                                await promises.unlink(pathModelCore + config1.subDir.core.models[0])
                                 if (fs.readdirSync(pathModelCore).length == 0)
                                     fs.rmdirSync(pathModelCore);
                                 await removeLineEnv();
