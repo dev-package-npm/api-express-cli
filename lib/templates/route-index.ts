@@ -13,7 +13,7 @@ export const routeIndex = (options: number) => {
                     if (options == 0) {
                         writer.writeLine('import testRouter from "../testing/routes/routes";');
                         writer.writeLine('// Example');
-                        writer.writeLine('//import userRouter from "./user.route"');
+                        writer.writeLine('//import example1Router from "./example1.route"');
                     }
                     else {
                         writer.writeLine('// Example');
@@ -39,12 +39,12 @@ export const routeIndex = (options: number) => {
                         writer.writeLine('router.use(\'/testing\', testRouter);');
                         writer.writeLine('// End points for entities');
                         writer.writeLine('// Example');
-                        writer.writeLine('//router.use(\'/users\', userRouter);');
+                        writer.writeLine('//router.use(\'/examples1\', example1Router);');
                     }
                     else if (options == 1) {
                         writer.writeLine('//#region  Definition of routes for tests');
                         writer.writeLine('//Example');
-                        writer.writeLine('//router.use(\'/users\', testUserRouter);');
+                        writer.writeLine('//router.use(\'/test-users\', testUserRouter);');
                     }
                     else if (options == 2) {
                         writer.writeLine('//#region  Definition of routes for services');

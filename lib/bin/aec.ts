@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import ansiColors from 'ansi-colors';
-import { version } from '../../package.json';
 import { controller } from '../cli/controller.cli';
 import { entity } from '../cli/entity.cli';
 import { startStructure } from '../cli';
@@ -15,6 +14,9 @@ import { removeModules } from '../cli/remove-modules.cli';
 import { createSecurityCore } from '../templates/core/libs/security';
 import { addLineFilePackage } from '../templates/package';
 import { addLineEnv, removeLineEnv } from '../templates/env';
+import { PackageFile } from '../class/package-file.class';
+
+const packageFile = new PackageFile();
 const main = async () => {
     try {
         process.title = "aec " + Array.from(process.argv).slice(2).join(" ");
@@ -71,7 +73,7 @@ COMMAND OPTIONS
             await removeModules(input.slice(2));
         }
         else if (params == '-v' || params == '--version') {
-            console.log('Version', ansiColors.cyan(version));
+            console.log('Version', ansiColors.cyan(await packageFile.getVersion()));
         }
         else console.log(ansiColors.yellowBright('Command is not valid'));
     } catch (error: any) {

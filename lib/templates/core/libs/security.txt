@@ -35,7 +35,7 @@ export abstract class Security {
         return jwt.decode(token);
     }
 
-    public async verifyToken(req: Request, res: Response, next: NextFunction): Promise<any> {
+    public verifyToken = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
         const controller = new Controller();
         try {
             if (!req.headers.authorization)

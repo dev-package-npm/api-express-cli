@@ -13,6 +13,7 @@
   "scripts": {
     "build": "npx tsc",
     "watch": "npx tsc -w",
+    "dev:watch-file": "node ./build/lib/watch-file",
     "dev:run-server": "nodemon ./build/src/index",
     "prepare": "npm run build && npm run cp-file-txt",
     "cp-file-txt": "node ./build/lib/functions/files",
@@ -46,7 +47,7 @@
     "@types/inquirer": "^9.0.1",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^18.13.0",
+    "@types/node": "^18.14.4",
     "nodemon": "^2.0.20",
     "typescript": "^4.9.5"
   },

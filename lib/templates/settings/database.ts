@@ -50,7 +50,8 @@ export const createDatabase = async (fileName?: string) => {
         user: process.env[\`USER_DB_\${String(process.env.NODE_ENV).toUpperCase()}\`],
         password: process.env[\`USER_PASSWORD_\${String(process.env.NODE_ENV).toUpperCase()}\`],
         database: process.env[\`DB_NAME_\${String(process.env.NODE_ENV).toUpperCase()}\`],
-        multipleStatements: true
+        multipleStatements: true,
+        charset: 'utf8mb4'
     };
 }`);
                     }

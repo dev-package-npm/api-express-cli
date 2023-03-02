@@ -1,6 +1,8 @@
+import ansiColors from 'ansi-colors';
 import inquirer from 'inquirer';
-import { addPrefix, getIndexSeparator } from '../functions/common';
-import { createController } from '../templates/controller';
+import fs from 'node:fs';
+import { addPrefix, getIndexSeparator, replaceAll } from '../functions/common';
+import { createController, pathController } from '../templates/controller';
 
 export const controller = async () => {
     let controller: string;
@@ -8,12 +10,24 @@ export const controller = async () => {
         type: 'input',
         name: 'controller',
         message: 'Write the name of the controller: ',
-    }).then((answer) => {
+    }).then(async (answer) => {
         controller = answer.controller;
         controller = controller.charAt(0).toUpperCase() + controller.slice(1);
         let indexSeparator = getIndexSeparator(controller).index;
         let nameClass = addPrefix(indexSeparator, controller, 'Controller');
-        createController(nameClass, answer.controller);
+        if (fs.existsSync(pathController + replaceAll(answer.controller, '-') + '.controller.ts')) {
+            console.log(ansiColors.redBright(`Controller '${answer.controller}' already exists`));
+            await inquirer.prompt({
+                type: 'confirm',
+                name: 'res',
+                message: `you want to override the '${answer.controller}' controller`,
+                default: false
+            }).then((answer2) => {
+                if (answer2.res)
+                    createController(nameClass, answer.controller);
+            });
+        } else
+            createController(nameClass, answer.controller);
     });
 }
 

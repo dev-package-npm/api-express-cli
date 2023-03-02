@@ -8,7 +8,7 @@ import { config1 } from '../config/structure-configuration.json';
 import { isExistsWord, replaceAll } from "../functions/common";
 import ansiColors from "ansi-colors";
 
-const pathRoute = path.resolve() + '/' + config1.dir + '/routes/';
+export const pathRoute = path.resolve() + '/' + config1.dir + '/routes/';
 
 export const createRouter = async (nameRoute: string, inputRouter: string, nameController?: string) => {
     let file;
@@ -44,10 +44,10 @@ export const createRouter = async (nameRoute: string, inputRouter: string, nameC
                         writer.blankLine();
                         writer.writeLine('// End points');
                         writer.writeLine(`${nameRoute}.route('')`)
-                            .indent().write(`.post((req: Request, res: Response) => ${variableController}.create(req, res))`);
-                        writer.newLine().indent().write(`.get((req: Request, res: Response) => ${variableController}.get(req, res))`);
-                        writer.newLine().indent().write(`.put((req: Request, res: Response) => ${variableController}.update(req, res))`);
-                        writer.newLine().indent().write(`.delete((req: Request, res: Response) => ${variableController}.delete(req, res));`);
+                            .indent().write(`.post(${variableController}.create)`);
+                        writer.newLine().indent().write(`.get(${variableController}.get)`);
+                        writer.newLine().indent().write(`.put(${variableController}.update)`);
+                        writer.newLine().indent().write(`.delete(${variableController}.delete);`);
                     }
                 },
             ],
@@ -59,14 +59,14 @@ export const createRouter = async (nameRoute: string, inputRouter: string, nameC
             imports: [
                 {
                     moduleSpecifier: 'express',
-                    namedImports: [{ name: ' Router' }, { name: 'Request' }, { name: 'Response ' }],
+                    namedImports: [{ name: ' Router ' }],
                     onBeforeWrite: writer => {
                         writer.writeLine('//#region Imports');
 
                     },
                     onAfterWrite: writer => {
                         writer.writeLine('//Example');
-                        writer.writeLine('//import UserController from "../controllers/user.controller"');
+                        writer.writeLine('//import Example1Controller from "../controllers/example1.controller"');
                         writer.writeLine('//#enregion');
                     }
                 }
@@ -79,13 +79,13 @@ export const createRouter = async (nameRoute: string, inputRouter: string, nameC
                     defaultExpression: 'Router()',
                     onAfterWrite: writer => {
                         writer.writeLine('//Example');
-                        writer.writeLine('// const user = new UserController();');
+                        writer.writeLine('// const example1 = new Example1Controller();');
                         writer.writeLine('// End points');
                         writer.writeLine(`//${nameRoute}.route('')`).write('//')
-                            .indent().write(`.post((req:Request, res:Response) => user.create(req, res))`);
-                        writer.newLine().write('//').indent().write(`.get((req:Request, res:Response) => user.get(req, res))`);
-                        writer.newLine().write('//').indent().write(`.put((req:Request, res:Response) => user.update(req, res))`);
-                        writer.newLine().write('//').indent().write(`.delete((req:Request, res:Response) => user.delete(req, res));`);
+                            .indent().write(`.post(example1.create)`);
+                        writer.newLine().write('//').indent().write(`.get(example1.get)`);
+                        writer.newLine().write('//').indent().write(`.put(example1.update)`);
+                        writer.newLine().write('//').indent().write(`.delete(example1.delete);`);
                     }
                 }
             ],
@@ -96,7 +96,7 @@ export const createRouter = async (nameRoute: string, inputRouter: string, nameC
 
         await addLineRoute(inputRouter, nameRoute);
     }
-    else console.log("You must initialize your project");
+    else console.log(ansiColors.blueBright('You must initialize your project'));
 }
 
 const addLineRoute = async (inputRouter: string, nameRoute: string) => {
@@ -126,5 +126,5 @@ const addLineRoute = async (inputRouter: string, nameRoute: string) => {
         rl.on('close', () => {
             fs.writeFileSync(pathRoute + 'routes.ts', modifiedContent);
         });
-    } else console.log(ansiColors.redBright(`A route with the name '${inputRouter}' already exists`));
+    } else console.log(ansiColors.blueBright(`A route with the name '${inputRouter}' already exists`));
 }
