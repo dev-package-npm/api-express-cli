@@ -115,7 +115,7 @@ export abstract class Entities extends Mixin(Errors, PackageFile, Config, FileCo
     }
 
     protected createSecurityCore() {
-        const contentBaseController = fs.readFileSync(path.join(path.resolve(__dirname), './security.txt'), 'utf-8')
+        const contentBaseController = fs.readFileSync(path.join(path.resolve(__dirname), './templates/security.txt'), 'utf-8')
         const fileName = this.structureProject.subDir.core.libs[0]
         if (!fs.existsSync(this.pathSecurityCore))
             fs.mkdirSync(this.pathSecurityCore, { recursive: true });

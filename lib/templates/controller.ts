@@ -4,8 +4,9 @@ import path from 'path';
 // Local
 import { config1 } from "../config/structure-configuration.json";
 import { replaceAll } from "../functions/common";
+import ansiColors from "ansi-colors";
 
-const pathController = path.resolve() + '/' + config1.dir + '/controllers/';
+export const pathController = path.resolve() + '/' + config1.dir + '/controllers/';
 export const createController = (nameClass: string, inputController: string, nameModel?: string) => {
     let file = createFile({
         fileName: `${replaceAll(inputController, '-')}.controller.ts`,
@@ -15,8 +16,6 @@ export const createController = (nameClass: string, inputController: string, nam
                 extendsTypes: ['Controller'],
                 methods: [
                     {
-                        scope: 'public',
-                        isAsync: true,
                         name: 'create',
                         parameters: [
                             {
@@ -25,10 +24,9 @@ export const createController = (nameClass: string, inputController: string, nam
                             },
                             {
                                 name: 'res',
-                                type: 'Response'
+                                type: 'Response',
                             }
                         ],
-                        returnType: 'Promise<Response>',
                         onWriteFunctionBody: writer => {
                             writer.writeLine('const { } = req.body;');
                             writer.write('try').block(() => {
@@ -48,7 +46,6 @@ export const createController = (nameClass: string, inputController: string, nam
                     },
                     {
                         scope: 'public',
-                        isAsync: true,
                         name: 'get',
                         parameters: [
                             {
@@ -79,7 +76,6 @@ export const createController = (nameClass: string, inputController: string, nam
                     },
                     {
                         scope: 'public',
-                        isAsync: true,
                         name: 'update',
                         parameters: [
                             {
@@ -110,7 +106,6 @@ export const createController = (nameClass: string, inputController: string, nam
                     },
                     {
                         scope: 'public',
-                        isAsync: true,
                         name: 'delete',
                         parameters: [
                             {
@@ -161,17 +156,23 @@ export const createController = (nameClass: string, inputController: string, nam
                     }
                     writer.writeLine('//#endregion');
                     writer.blankLine();
-                    writer.writeLine('//#region Models');
-                    if (nameModel != undefined) {
-                        writer.writeLine(`const ${nameModel.charAt(0).toLowerCase() + nameModel.slice(1)} = new ${nameModel}();`);
-                    }
-                    writer.writeLine('//#endregion');
                 }
             }
         ],
     });
-
+    if (nameModel != undefined)
+        file.getClass(nameClass)?.addProperty({
+            name: nameModel.charAt(0).toLowerCase() + nameModel.slice(1),
+            scope: 'private',
+            defaultExpression: `new ${nameModel}()`,
+            onAfterWrite: writer => {
+                writer.writeLine('//#endregion');
+            },
+            onBeforeWrite: writer => {
+                writer.writeLine('//#region Models');
+            }
+        });
     if (fs.existsSync(pathController))
-        fs.writeFileSync(`${pathController}${file.fileName}`, file.write());
-    else console.log("you must initialize your project");
+        fs.writeFileSync(`${pathController}${file.fileName}`, file.write().replaceAll('(req: Request, res: Response)', ' = async (req: Request, res: Response): Promise<Response> =>'));
+    else console.log(ansiColors.blueBright('You must initialize your project'));
 };

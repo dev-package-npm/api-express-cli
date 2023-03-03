@@ -3,8 +3,7 @@ import { fileForWatch, moveFilesTemplate } from './functions/files';
 
 const watchFile = () => {
     for (const item of fileForWatch) {
-        fs.watchFile(item.origin, (envent, filename) => {
-            console.log(envent, filename);
+        fs.watchFile(item.path_origin + item.file_name, (envent, filename) => {
             if (filename.size != envent.size) {
                 moveFilesTemplate();
             }
