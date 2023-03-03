@@ -29,4 +29,15 @@ export abstract class Common {
         return name || `${input}${prefix}`;
     }
 
+    async isExistsWord(rl: readLine.Interface, words: Array<string>): Promise<boolean> {
+        for await (const line of rl) {
+            for (let index = 0; index < words.length; index++) {
+                if (line.includes(words[index].replaceAll('\n', '')) != false) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

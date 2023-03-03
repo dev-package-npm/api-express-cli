@@ -3,7 +3,7 @@ import ansiColors from 'ansi-colors';
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-
+import loading from 'loading-cli';
 import { controller } from '../cli/controller.cli';
 import { entity } from '../cli/entity.cli';
 import { startStructure } from '../cli';
@@ -14,10 +14,12 @@ import { addUtilities } from '../cli/add-utility-modules';
 import { removeModules } from '../cli/remove-modules.cli';
 import { createSecurityCore } from '../templates/core/libs/security';
 import { addLineFilePackage } from '../templates/package';
-import { addLineEnv, removeLineEnv } from '../templates/env';
+import { addLineEnv, createEnvFile, removeLineEnv } from '../templates/env';
 import { PackageFile } from '../class/package-file.class';
 import { Entities } from '../class/entities.class';
 import { config1 } from '../class/config.class';
+import { routeIndex } from '../templates/route-index';
+import { createControllerCore } from '../templates/core/controllers/controller-core';
 
 const packageFile = new PackageFile();
 
@@ -25,10 +27,13 @@ export default class Aec extends Entities {
     //#region Private properties
     private input: string[];
     private abrevCommand: string = 'aec';
+    private fullCommand: string = 'api-express-cli';
+    private pathPackage = path.join(path.resolve(), '/package.json');
+
     private help: string = `
 Example command
-    ${ansiColors.cyan(this.abrevCommand + ' <command> --help ')}More information
-    ${ansiColors.cyan(this.abrevCommand + ' <flags> <options> ')}More information
+    ${ansiColors.cyan(this.abrevCommand + ' or ' + this.fullCommand + '<command> --help ')}More information
+    ${ansiColors.cyan(this.abrevCommand + ' or ' + this.fullCommand + '<flags> <options> ')}More information
 
 COMMAND LINE FLAGS
     ${ansiColors.cyan('init, in ')}Initialize a folder structure for the api, with some utilities.
@@ -44,6 +49,16 @@ COMMAND LINE FLAGS
 COMMAND OPTIONS
     ${ansiColors.cyan('--name ')}Name files ${ansiColors.redBright('Not applied')}.
     ${ansiColors.cyan('--add ')}Name module.`;
+
+    private helpInitial: string = `
+Example command
+    ${ansiColors.cyan(this.abrevCommand + ' or ' + this.fullCommand + ' <flags> <name> ')}
+
+COMMAND LINE FLAGS
+    ${ansiColors.cyan('create, c ')}Create project name with given name.
+    ${ansiColors.cyan('--help, -h ')}Print this message.
+    ${ansiColors.cyan('--version, -v ')}Print version with package.
+`;
     private paramsValid: string[] = [
 
     ];
@@ -56,10 +71,6 @@ COMMAND OPTIONS
         this.input = process.title.split(" ");
     }
 
-
-    /**
-    
-    */
     async interpreInput() {
         try {
             // console.log(this.input);
@@ -68,32 +79,38 @@ COMMAND OPTIONS
                 if (this.validateQuantityArguments(this.input, 1))
                     this.printHelp();
             }
-            else if (params == 'init' || params == 'in') {
-                await this.startStructure();
-                // await startStructure();
-                // interpretAttibutes(input);
+            else if (fs.existsSync(this.pathPackage)) {
+                if (params == 'init' || params == 'in') {
+                    await this.startStructure();
+                    // await startStructure();
+                    // interpretAttibutes(input);
+                }
+                else if (params == 'entity' || params == 'e') {
+                    // if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
+                    //     await entity();
+                    // else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
+                }
+                else if (params == 'route' || params == 'r') {
+                    // await route();
+                }
+                else if (params == 'controller' || params == 'c') {
+                    // await controller();
+                }
+                else if (params == 'model' || params == 'm') {
+                    // if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
+                    //     await model();
+                    // else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
+                }
+                else if (params == 'add' || params == 'ad') {
+                    // await addUtilities(input.slice(2)[0]);
+                }
+                else if (params == 'remove' || params == 'rm') {
+                    // await removeModules(input.slice(2));
+                }
+                else console.log(ansiColors.yellowBright('Command is not valid'));
             }
-            else if (params == 'entity' || params == 'e') {
-                // if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
-                //     await entity();
-                // else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
-            }
-            else if (params == 'route' || params == 'r') {
-                // await route();
-            }
-            else if (params == 'controller' || params == 'c') {
-                // await controller();
-            }
-            else if (params == 'model' || params == 'm') {
-                // if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
-                //     await model();
-                // else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
-            }
-            else if (params == 'add' || params == 'ad') {
-                // await addUtilities(input.slice(2)[0]);
-            }
-            else if (params == 'remove' || params == 'rm') {
-                // await removeModules(input.slice(2));
+            else if (params == 'create' || params == 'c') {
+                console.log(this.input);
             }
             else if (params == '-v' || params == '--version') {
                 if (this.validateQuantityArguments(this.input, 1))
@@ -107,7 +124,9 @@ COMMAND OPTIONS
 
     //#region Private methods
     private printHelp() {
-        console.log(this.help);
+        if (fs.existsSync(this.pathPackage))
+            console.log(this.help);
+        else console.log(this.helpInitial);
     }
 
     private validateQuantityArguments(params: string[], quantity: number): boolean {
@@ -120,77 +139,72 @@ COMMAND OPTIONS
 
     private async startStructure() {
 
-        console.log(this.getSubdirs());
-        // return new Promise((resolve, reject) => {
-        //     const pathWork = path.resolve() + '/' + config1.dir;
-        //     if (!fs.existsSync(pathWork)) {
-        //         const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
-        //         const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
-        //         console.log('Installing packages...');
-        //         exec('npm i ' + _package, (error, stdout, stderr) => {
-        //             if (!error && stdout != '' && !stderr) {
-        //                 exec('npm i -D ' + devPackages, (error, stdout, stderr) => {
-        //                     console.log(ansiColors.blueBright('✓ Done'));
-        //                     if (!error && stdout != '' && !stderr) {
-        //                         const folders = Object.keys(config1.subDir).filter(value => value != 'models' && value != 'databases');
-        //                         const foldersSecundary = ['routes', 'controllers', 'models', 'helpers'];
-        //                         folders.forEach((value) => {
-        //                             fs.mkdirSync(pathWork + '/' + value, { recursive: true });
-        //                         });
-        //                         foldersSecundary.forEach((value) => {
-        //                             // fs.mkdirSync(pathWork + '/services/auth/' + value, { recursive: true });
-        //                             if (value != 'models' && value != 'helpers')
-        //                                 fs.mkdirSync(pathWork + '/testing/' + value, { recursive: true });
-        //                         });
-        //                         fs.mkdirSync(pathWork + '/services/routes', { recursive: true });
-        //                         if (fs.existsSync(pathWork + '/routes/'))
-        //                             fs.writeFileSync(pathWork + '/routes/' + routeIndex(0).fileName, routeIndex(0).write());
-        //                         if (fs.existsSync(pathWork + '/testing/routes/')) {
-        //                             fs.writeFileSync(pathWork + '/testing/routes/' + routeIndex(1).fileName, routeIndex(1).write());
-        //                         }
-        //                         if (fs.existsSync(pathWork + '/services/routes/')) {
-        //                             fs.writeFileSync(pathWork + '/services/routes/' + routeIndex(2).fileName, routeIndex(2).write());
-        //                         }
+        // console.log(this.getSubdirs());
+        return new Promise((resolve, reject) => {
+            const pathWork = path.resolve() + '/' + this.structureProject.dir;
+            // console.log(pathWork);
+            if (!fs.existsSync(pathWork)) {
+                const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
+                const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
+                const load = loading({ text: 'Installing packages...', color: 'blue' });
+                load.start();
+                exec('npm i ' + _package, (error, stdout, stderr) => {
+                    if (!error && stdout != '' && !stderr) {
+                        exec('npm i -D ' + devPackages, (error, stdout, stderr) => {
+                            load.stop();
+                            console.log(ansiColors.blueBright('✓ Done installation'));
+                            if (!error && stdout != '' && !stderr) {
+                                const folders = this.getSubdirs().filter(value => value != 'models' && value != 'databases' && value != 'files');
+                                folders.forEach((value) => {
+                                    fs.mkdirSync(pathWork + '/' + value, { recursive: true });
+                                });
+                                Object.keys(this.structureProject.subDir.testing).forEach((value) => {
+                                    fs.mkdirSync(pathWork + '/testing/' + value, { recursive: true });
+                                });
+                                if (fs.existsSync(pathWork + '/routes/'))
+                                    fs.writeFileSync(pathWork + '/routes/' + this.routeIndex(0).fileName, this.routeIndex(0).write());
+                                if (fs.existsSync(pathWork + '/testing/routes/')) {
+                                    fs.writeFileSync(pathWork + '/testing/routes/' + this.routeIndex(1).fileName, this.routeIndex(1).write());
+                                }
+                                this.createEnvFile();
+                                // Create core files
+                                this.createControllerCore();
+                                this.createSecurityCore();
+                                // Create Server http
+                                this.createMiddlewares();
+                                this.createServerHttp();
+                                this.createIndexApi();
+                                if (!fs.existsSync(path.resolve() + '/tsconfig.json')) {
+                                    exec(`npx tsc --init --target ES2022 --removeComments true --outDir ./${this.folderBuild}`, (error, stdout, tderr) => {
+                                        if (!error && stdout != '' && !tderr) {
+                                            addLineFilePackage(this.folderBuild);
+                                            resolve(true);
+                                        }
+                                        else {
+                                            console.log(error || stderr);
+                                            reject(false);
+                                        }
+                                    });
 
-        //                         // createEnvFile();
-        //                         // Create core files
-        //                         // createControllerCore();
-        //                         // createSecurityCore();
-        //                         // Create Server http
-        //                         // createMiddlewares();
-        //                         // createServerHttp();
-        //                         // createIndexApi();
-        //                         if (!fs.existsSync(path.resolve() + '/tsconfig.json')) {
+                                } else resolve(true);
+                            } else {
+                                load.stop();
+                                console.log(error || stderr);
+                                reject(false);
+                            }
+                        });
+                    } else {
+                        console.log(error || stderr);
+                        reject(false);
+                    }
+                });
 
-        //                             exec(`npx tsc --init --target ES2022 --removeComments true --outDir ./${this.folderBuild}`, (error, stdout, tderr) => {
-        //                                 if (!error && stdout != '' && !tderr) {
-        //                                     addLineFilePackage(this.folderBuild);
-        //                                     resolve(true);
-        //                                 }
-        //                                 else {
-        //                                     console.log(error || stderr);
-        //                                     reject(false);
-        //                                 }
-        //                             });
-
-        //                         } else resolve(true);
-        //                     } else {
-        //                         console.log(error || stderr);
-        //                         reject(false);
-        //                     }
-        //                 });
-        //             } else {
-        //                 console.log(error || stderr);
-        //                 reject(false);
-        //             }
-        //         });
-
-        //     }
-        //     else {
-        //         console.error(ansiColors.redBright('A project has already been initialized'));
-        //         reject(false);
-        //     }
-        // });
+            }
+            else {
+                console.error(ansiColors.redBright('A project has already been initialized'));
+                reject(false);
+            }
+        });
     };
     //#endregion
 }
