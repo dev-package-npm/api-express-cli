@@ -3,7 +3,8 @@ import ansiColors from 'ansi-colors';
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import loading from 'loading-cli';
+import cliProgress from 'cli-progress';
+import Spinner from 'ts-spinner';
 import { controller } from '../cli/controller.cli';
 import { entity } from '../cli/entity.cli';
 import { startStructure } from '../cli';
@@ -59,6 +60,7 @@ COMMAND LINE FLAGS
     ];
     private folderBuild = 'dist';
     //#endregion
+
     constructor() {
         super();
         //? Takes the data entered by the terminal, and stores it
@@ -142,12 +144,21 @@ COMMAND LINE FLAGS
             if (!fs.existsSync(pathWork)) {
                 const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
                 const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
-                const load = loading({ text: 'Installing packages...', color: 'blue' });
-                load.start();
+                // const barInstalling = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+                // barInstalling.start(200, 0);
+                // const spinner = new Spinner();
+                // spinner.start(ansiColors.blueBright('Installing packages...'));
+
+                // const load = loading({ text: 'Installing packages...', color: 'blue' });
+                // load.start();
+
                 exec('npm i ' + _package, (error, stdout, stderr) => {
                     if (!error && stdout != '' && !stderr) {
-                        exec('npm i -D ' + devPackages, async (error, stdout, stderr) => {
-                            load.stop();
+                        const ex = exec('npm i -D ' + devPackages, async (error, stdout, stderr) => {
+                            // spinner.success(ansiColors.blueBright('Done installation'));
+                            // spinner.stop();
+                            // barInstalling.stop();
+                            // load.stop();
                             console.log(ansiColors.blueBright('✓ Done installation'));
                             if (!error && stdout != '' && !stderr) {
                                 const folders = this.getSubdirs().filter(value => value != 'models' && value != 'databases' && value != 'files');
@@ -184,11 +195,13 @@ COMMAND LINE FLAGS
 
                                 } else resolve(true);
                             } else {
-                                load.stop();
                                 console.log(error || stderr);
                                 reject(false);
                             }
                         });
+                        // ex.on('spawn', () => {
+                        //     console.log('spawn', ex.stdout);
+                        // })
                     } else {
                         console.log(error || stderr);
                         reject(false);
@@ -205,7 +218,6 @@ COMMAND LINE FLAGS
     //#endregion
 }
 
-//     try {
 //         process.title = "aec " + Array.from(process.argv).slice(2).join(" ");
 //         const input = process.title.split(" ");
 //         const params = input[1];

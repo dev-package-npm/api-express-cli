@@ -208,11 +208,7 @@ export abstract class Entities extends Mixin(Errors, PackageFile, Config, FileCo
                 },
                 {
                     moduleSpecifier: '../../routes/routes',
-                    defaultImportName: 'router'
-                },
-                {
-                    moduleSpecifier: '../../services/routes/routes',
-                    defaultImportName: 'servicesRouter',
+                    defaultImportName: 'router',
                     onAfterWrite: writer => {
                         writer.writeLine('//#endregion');
                     }
@@ -255,7 +251,6 @@ export abstract class Entities extends Mixin(Errors, PackageFile, Config, FileCo
                                 writer.writeLine('this.app.get(\'/\', (req: Request, res: Response) => res.status(200).send(\'index API\'));');
                                 writer.writeLine('// Main routes');
                                 writer.writeLine('this.app.use(this.pathDefault, router);');
-                                writer.writeLine('this.app.use(this.pathDefault + \'services/\', servicesRouter);');
                             }
                         },
                         {
