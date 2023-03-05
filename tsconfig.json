@@ -101,5 +101,8 @@
   },
   "include": [
     "lib"
-  ]
+  ],
+  "ts-node": {
+    "esm": true
+  }
 }
