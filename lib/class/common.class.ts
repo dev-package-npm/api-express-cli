@@ -1,5 +1,5 @@
+import { exec } from 'node:child_process';
 import readLine from 'readline';
-import { ICommon } from './interfaces/common.interface';
 
 export abstract class Common {
 
@@ -40,4 +40,15 @@ export abstract class Common {
         return false;
     }
 
+    protected executeTerminal(params: string): Promise<string> {
+        return new Promise((resovle, rejects) => {
+            exec(params, (error, stdout, stderr) => {
+                if (error != null)
+                    rejects(new Error(String(error)));
+                if (stderr != '')
+                    rejects(new Error(String(stderr)));
+                resovle(stdout);
+            });
+        });
+    }
 }

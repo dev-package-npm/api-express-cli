@@ -1,23 +1,12 @@
 #!/usr/bin/env node
 import ansiColors from 'ansi-colors';
-import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import Spinnies from 'spinnies';
 
-import { controller } from '../cli/controller.cli';
-import { entity } from '../cli/entity.cli';
-import { startStructure } from '../cli';
-import { model } from '../cli/model.cli';
-import { route } from '../cli/route.cli';
-import { addUtilities } from '../cli/add-utility-modules';
 
-import { removeModules } from '../cli/remove-modules.cli';
-import { addLineFilePackage } from '../templates/package';
-import { PackageFile } from '../class/package-file.class';
 import { Entities } from '../class/entities.class';
+import inquirer from 'inquirer';
 
-const packageFile = new PackageFile();
 
 export default class Aec extends Entities {
     //#region Private properties
@@ -55,10 +44,6 @@ COMMAND LINE FLAGS
     ${ansiColors.cyan('--help, -h ')}Print this message.
     ${ansiColors.cyan('--version, -v ')}Print version with package.
 `;
-    private paramsValid: string[] = [
-
-    ];
-    private folderBuild = 'dist';
     //#endregion
 
     constructor() {
@@ -68,58 +53,61 @@ COMMAND LINE FLAGS
         this.input = process.title.split(" ");
     }
 
-    async interpreInput() {
+    async interpreInput(): Promise<void> {
         try {
-            // console.log(this.input);
             const params = this.input[0];
+            // console.log(params);
             if (params === "--help" || params === "-h" || params == "") {
                 if (this.validateQuantityArguments(this.input, 1))
                     this.printHelp();
             }
+            else if (params == '-v' || params == '--version') {
+                if (this.validateQuantityArguments(this.input, 1))
+                    console.log('Version', ansiColors.cyan(await this.getVersion()));
+            }
             else if (fs.existsSync(this.pathPackage)) {
+                if (!fs.existsSync(this.pathIndexApi) && (params != 'init' && params != 'in'))
+                    throw new Error(ansiColors.blueBright('You must initialize your project'));
+
                 if (params == 'init' || params == 'in') {
                     await this.startStructure();
-                    this.interpretAttibutes(this.input);
+                    await this.interpretAttibutes(this.input);
                 }
                 else if (params == 'entity' || params == 'e') {
-                    // if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
-                    //     await entity();
-                    // else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
+                    if (this.isExistModuleDatabase())
+                        await this.entity();
+                    else throw new Error(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. ') + ansiColors.blueBright(`Use aec or api-express-cli add db:mysql`));
                 }
                 else if (params == 'route' || params == 'r') {
-                    await route();
+                    await this.route();
                 }
                 else if (params == 'controller' || params == 'c') {
-                    // await controller();
+                    await this.controller();
                 }
                 else if (params == 'model' || params == 'm') {
-                    // if (fs.existsSync(path.resolve() + '/' + config1.dir + '/models'))
-                    //     await model();
-                    // else console.log(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. '), ansiColors.blueBright('Use aec add db:mysql'));
+                    if (fs.existsSync(this.pathModel) && fs.existsSync(path.join(this.pathSettings, this.structureProject.subDir.settings.files.database)))
+                        await this.model();
+                    else throw new Error(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. ') + ansiColors.blueBright('Use aec or api-express-cli add db:mysql'));
                 }
                 else if (params == 'add' || params == 'ad') {
-                    // await addUtilities(input.slice(2)[0]);
+                    await this.addUtilities(this.input.slice(1));
                 }
                 else if (params == 'remove' || params == 'rm') {
-                    // await removeModules(input.slice(2));
+                    await this.removeModules(this.input.slice(1));
                 }
-                else console.log(ansiColors.yellowBright('Command is not valid'));
+                else throw new Error(ansiColors.yellowBright('Command is not valid'));
             }
             else if (params == 'create' || params == 'c') {
                 console.log(this.input);
             }
-            else if (params == '-v' || params == '--version') {
-                if (this.validateQuantityArguments(this.input, 1))
-                    console.log('Version', ansiColors.cyan(await packageFile.getVersion()));
-            }
-            else console.log(ansiColors.yellowBright('Command is not valid'));
+            else throw new Error(ansiColors.yellowBright('Command is not valid'));
         } catch (error: any) {
-            console.error(ansiColors.redBright(error.message));
+            console.error(error.message);
         }
     }
 
     //#region Private methods
-    private printHelp() {
+    private printHelp(): void {
         if (fs.existsSync(this.pathPackage))
             console.log(this.help);
         else console.log(this.helpInitial);
@@ -133,89 +121,222 @@ COMMAND LINE FLAGS
         else return true;
     }
 
-    private async startStructure() {
-        const promise = new Promise(async (resolve, rejects) => {
-            const spinnies = new Spinnies();
-            try {
-                const pathWork = path.resolve() + '/' + this.structureProject.dir;
-                // ! quitar
-                // if (fs.existsSync(pathWork))
-                //     fs.rmSync(pathWork, { recursive: true });
-                if (!fs.existsSync(pathWork)) {
-                    const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
-                    const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
-                    spinnies.add('spinner-1', { text: ansiColors.blueBright('Installing packages...') });
-
-                    await this.executeTerminal(`npm i ${_package}`);
-                    await this.executeTerminal(`npm i ${devPackages} -D`);
-                    spinnies.succeed('spinner-1', { text: ansiColors.blueBright('Done installation') });
-                    const folders = this.getSubdirs().filter(value => value != 'models' && value != 'databases' && value != 'files');
-                    folders.forEach((value) => {
-                        fs.mkdirSync(pathWork + '/' + value, { recursive: true });
-                    });
-                    Object.keys(this.structureProject.subDir.testing).forEach((value) => {
-                        fs.mkdirSync(pathWork + '/testing/' + value, { recursive: true });
-                    });
-                    if (fs.existsSync(pathWork + '/routes/'))
-                        fs.writeFileSync(pathWork + '/routes/' + this.routeIndex(0).fileName, this.routeIndex(0).write());
-                    if (fs.existsSync(pathWork + '/testing/routes/')) {
-                        fs.writeFileSync(pathWork + '/testing/routes/' + this.routeIndex(1).fileName, this.routeIndex(1).write());
-                    }
-                    this.createEnvFile();
-                    // Create core files
-                    this.createControllerCore();
-                    this.createSecurityCore();
-                    // Create Server http
-                    this.createMiddlewares();
-                    await this.createServerHttp();
-                    this.createIndexApi();
-                    if (!fs.existsSync(path.resolve() + '/tsconfig.json')) {
-                        await this.executeTerminal(`npx tsc --init --target ES2022 --removeComments true --outDir ./${this.folderBuild}`);
-                        await this.addLineFilePackage(this.folderBuild);
-                    }
-                    resolve(true);
+    private async interpretAttibutes(input: Array<string>): Promise<void> {
+        try {
+            if (input.length > 2) {
+                var attributes = input.slice(1);
+                switch (attributes[0]) {
+                    case '--add':
+                        attributes = attributes.slice(1);
+                        await this.addUtilities(attributes);
+                        break;
+                    case '--name':
+                        break;
+                    default:
+                        throw new Error(ansiColors.redBright('Invalid attribute'));
+                        break;
                 }
-                else {
-                    rejects(new Error('A project has already been initialized'));
-                }
-            } catch (error: any) {
-                spinnies.fail('spinner-1', { text: ansiColors.blueBright(error.message) });
-                rejects(new Error(error.message));
-            }
-        });
-
-        return await promise;
-    };
-
-    private executeTerminal(params: string): Promise<string> {
-        return new Promise((resovle, rejects) => {
-            exec(params, (error, stdout, stderr) => {
-                if (error != null)
-                    rejects(new Error(String(error)));
-                if (stderr != '')
-                    rejects(new Error(String(stderr)));
-                resovle(stdout);
-            });
-        });
+            } else if (input.length < 1) throw new Error('A value is expected in the argument');
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
     }
 
-    private interpretAttibutes(input: Array<string>) {
-        if (input.length > 2) {
-            var attributes = input.slice(2);
-            switch (attributes[0]) {
-                case '--add':
-                    attributes = attributes.slice(1);
-                    attributes.forEach(async element => {
-                        await addUtilities(element);
-                    });
+    private async interpretAnswer(answer: string, action: 'add' | 'rm' = 'add') {
+        try {
+            switch (answer) {
+                case 'ws':
+                    if (action == 'add')
+                        await this.initWs(answer);
+                    else if (action == 'rm')
+                        await this.removeWs(answer);
                     break;
-                case '--name':
+                case 'db:mysql':
+                    if (action == 'add')
+                        await this.initDatabase(answer);
+                    else if (action == 'rm') {
+                        await this.removeDatabase(answer);
+                    }
                     break;
                 default:
-                    throw new Error('Invalid attribute');
+                    throw new Error(ansiColors.redBright(ansiColors.redBright(`Invalid '${answer}' value`)));
                     break;
             }
-        } else throw new Error('A value is expected in the argument');
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
     }
+
+    //#region 
+    private async route() {
+        try {
+            await inquirer.prompt({
+                type: 'input',
+                name: 'route',
+                message: 'Write the name of the route: ',
+            }).then(async (answer) => {
+                let route: string;
+                route = answer.route;
+                let indexSeparator = this.getIndexSeparator(route).index;
+                let nameRoute = this.addPrefix(indexSeparator, route, 'Router');
+                if (fs.existsSync(this.pathRoute + this.replaceAll(answer.route, '-') + `.${this.fileNameRoutes}`)) {
+                    console.log(ansiColors.redBright(`Router file '${answer.route}' already exists`));
+                    await inquirer.prompt({
+                        type: 'confirm',
+                        name: 'res',
+                        message: `you want to override the '${answer.route}' router`,
+                        default: false
+                    }).then(async (answer2) => {
+                        if (answer2.res)
+                            await this.createRouter(nameRoute, answer.route);
+                    });
+                } else
+                    await this.createRouter(nameRoute, answer.route);
+            });
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async controller() {
+        try {
+            let controller: string;
+            await inquirer.prompt({
+                type: 'input',
+                name: 'controller',
+                message: 'Write the name of the controller: ',
+            }).then(async (answer) => {
+                controller = answer.controller;
+                controller = controller.charAt(0).toUpperCase() + controller.slice(1);
+                let indexSeparator = this.getIndexSeparator(controller).index;
+                let nameClass = this.addPrefix(indexSeparator, controller, 'Controller');
+                if (fs.existsSync(this.pathControllers + this.replaceAll(answer.controller, '-') + `.${this.fileNameController}`)) {
+                    console.log(ansiColors.redBright(`Controller '${answer.controller}' already exists`));
+                    await inquirer.prompt({
+                        type: 'confirm',
+                        name: 'res',
+                        message: `you want to override the '${answer.controller}' controller`,
+                        default: false
+                    }).then(async (answer2) => {
+                        if (answer2.res)
+                            await this.createController(nameClass, answer.controller);
+                    });
+                } else
+                    await this.createController(nameClass, answer.controller);
+            });
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async model() {
+        try {
+            await inquirer.prompt({
+                type: 'input',
+                name: 'model',
+                message: 'Write the name of the model: ',
+            }).then(async (answer) => {
+                let model: string;
+                model = String(answer.model).toLocaleLowerCase();
+                model = model.charAt(0).toUpperCase() + model.slice(1);
+                let indexSeparator = this.getIndexSeparator(model).index;
+                let nameClass = this.addPrefix(indexSeparator, model, 'Model');
+                if (fs.existsSync(this.pathModel + this.replaceAll(answer.model, '-') + '.model.ts')) {
+                    console.log(ansiColors.redBright(`Controller '${answer.model}' already exists`));
+                    await inquirer.prompt({
+                        type: 'confirm',
+                        name: 'res',
+                        message: `you want to override the '${answer.model}' model`,
+                        default: false
+                    }).then((answer2) => {
+                        if (answer2.res)
+                            this.createModel(nameClass, answer.model);
+                    });
+                } else
+                    this.createModel(nameClass, answer.model);
+            });
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async entity() {
+        try {
+            let entity: string;
+            await inquirer.prompt({
+                type: 'input',
+                name: 'entity',
+                message: 'Write the name of the entity: ',
+            }).then(async (answer) => {
+                entity = answer.entity;
+                const upperCamelCase = entity.charAt(0).toUpperCase() + entity.slice(1);
+                let indexSeparator = this.getIndexSeparator(entity).index;
+                let nameRoute = this.addPrefix(indexSeparator, entity, 'Router');
+                let nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
+                let nameClassModel = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
+
+                await this.createRouter(nameRoute, answer.entity, nameClassController);
+                await this.createController(nameClassController, answer.entity, nameClassModel);
+                this.createModel(nameClassModel, answer.entity);
+            });
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async addUtilities(params: Array<string>): Promise<void> {
+        try {
+            let choices = [];
+            if (!this.isExistModuleDatabase()) choices.push({ name: 'Database(MySql)', value: 'db:mysql' });
+            if (!this.isExistModuleWs()) choices.push({ name: 'WS (SocketIo)', value: 'ws' });
+            if (choices.length > 0) {
+                if (params != undefined) {
+                    for (const item of params) {
+                        await this.interpretAnswer(item);
+                    }
+                } else
+                    await inquirer.prompt({
+                        type: 'list',
+                        name: 'utilities',
+                        message: 'Select the module to add: ',
+                        choices
+                    }).then(async (answer) => {
+                        await this.interpretAnswer(answer.utilities);
+                    });
+            } else throw new Error(ansiColors.blueBright('The modules are already added'));
+        } catch (error: any) {
+            throw new Error(error.message)
+        }
+    }
+
+    private async removeModules(params: Array<string>) {
+        try {
+            let choices = [];
+
+            if (this.isExistModuleDatabase())
+                choices.push({ name: 'Database(MySql)', value: 'db:mysql' });
+            if (this.isExistModuleWs())
+                choices.push({ name: 'WS (SocketIo)', value: 'ws' });
+
+            if (choices.length > 0) {
+                if (params != undefined && params.length != 0) {
+                    for (const item of params) {
+                        await this.interpretAnswer(item, 'rm');
+                    }
+                } else
+                    await inquirer.prompt({
+                        type: 'list',
+                        name: 'utilities',
+                        message: 'Select the module to remove: ',
+                        choices
+                    }).then(async (answer) => {
+                        await this.interpretAnswer(answer.utilities, 'rm');
+                    });
+            } else throw new Error(ansiColors.blueBright('No modules to remove'));
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+    //#endregion
     //#endregion
 }

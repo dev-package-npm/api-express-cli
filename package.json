@@ -17,7 +17,7 @@
     "dev:watch-ts": "npm run dev:build && npx tsc -p ./tsconfig.dev.json -w",
     "dev:run-server": "nodemon ./dist/index",
     "dev:watch-file": "node ./build/watch-file",
-    "prepare": "npm run build ",
+    "prepare": "npm run build",
     "cp-file-txt": "node ./build/functions/files",
     "test": "node ./build/test/blah.test.js"
   },
@@ -65,8 +65,6 @@
     "inquirer": "^8.2.4",
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
-    "promise-mysql": "^5.2.0",
-    "socket.io": "^4.6.0",
     "spinnies": "^0.5.1",
     "ts-code-generator": "^0.0.3",
     "ts-mixer": "^6.0.3"

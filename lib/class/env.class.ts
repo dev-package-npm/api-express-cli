@@ -34,32 +34,36 @@ KEY='${hash}'`;
         fs.writeFileSync(this.pathFileEnv, content);
     }
 
-    protected async addLineEnv() {
-        const content = fs.createReadStream(this.pathFileEnv, { encoding: 'utf-8' });
-        let rl = readLine.createInterface({ input: content });
-        let modifiedContent = '';
-
-        const controlWrite = await this.isExistsWord(rl, ['#HOST_DB_DEVELOPMENT=127.0.0.1', '#HOST_DB_PRODUCTION=127.0.0.1']);
-
-        if (controlWrite) {
+    protected async addLineEnv(): Promise<void> {
+        try {
             const content = fs.createReadStream(this.pathFileEnv, { encoding: 'utf-8' });
-            rl = readLine.createInterface({ input: content });
-            let controlRead = false;
-            rl.on('line', line => {
-                if (line.includes('# DB config')) {
-                    modifiedContent += line + '\n';
-                    controlRead = true
-                }
-                else if (controlRead) {
-                    line = line.replace('#', '');
-                    modifiedContent += line + '\n';
-                    if (line.includes('DB_NAME_PRODUCTION=db_test')) controlRead = false;
-                }
-                else modifiedContent += line + '\n';
-            });
-            rl.on('close', () => {
-                fs.writeFileSync(this.pathFileEnv, modifiedContent);
-            });
+            let rl = readLine.createInterface({ input: content });
+            let modifiedContent = '';
+
+            const controlWrite = await this.isExistsWord(rl, ['#HOST_DB_DEVELOPMENT=127.0.0.1', '#HOST_DB_PRODUCTION=127.0.0.1']);
+
+            if (controlWrite) {
+                const content = fs.createReadStream(this.pathFileEnv, { encoding: 'utf-8' });
+                rl = readLine.createInterface({ input: content });
+                let controlRead = false;
+                rl.on('line', line => {
+                    if (line.includes('# DB config')) {
+                        modifiedContent += line + '\n';
+                        controlRead = true
+                    }
+                    else if (controlRead) {
+                        line = line.replace('#', '');
+                        modifiedContent += line + '\n';
+                        if (line.includes('DB_NAME_PRODUCTION=db_test')) controlRead = false;
+                    }
+                    else modifiedContent += line + '\n';
+                });
+                rl.on('close', () => {
+                    fs.writeFileSync(this.pathFileEnv, modifiedContent);
+                });
+            }
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 

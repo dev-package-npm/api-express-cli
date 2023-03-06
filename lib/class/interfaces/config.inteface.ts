@@ -22,10 +22,13 @@ type TFolder = {
     };
     settings: {
         [T in keyof Pick<TFolder, 'server'>]: {
-            [T in keyof Pick<TFolder, 'middlewares' | 'files'>]?: Array<string>
+            [T in keyof Pick<TFolder, 'middlewares'>]: Array<string>
+
+        } & {
+            [T in keyof Pick<TFolder, 'files'>]: IFilesServer
         }
-    } | {
-        [T in keyof Pick<TFolder, 'files'>]?: Array<string>
+    } & {
+        [T in keyof Pick<TFolder, 'files'>]: IFilesSettings
     };
     routes: Array<string>;
     middlewares: any;
@@ -34,10 +37,26 @@ type TFolder = {
         [T in keyof Pick<TFolderSubdir, 'controllers' | 'routes' | 'models'>]: Array<string>
     };
     src: any;
-    files: Array<string>
+    files: TFiles;
 }
 
 type TFolderSubdir = Omit<TFolder, 'server' | 'middlewares' | 'src'>;
 
-export { TStructureProject };
+type TFiles = {
+    path: string;
 
+} & {
+    [T: string]: string;
+}
+
+interface IFilesSettings extends TFiles {
+    database: string;
+    multer: string;
+}
+
+interface IFilesServer extends TFiles {
+    server: string;
+    ws_server: string;
+}
+
+export { TStructureProject };
