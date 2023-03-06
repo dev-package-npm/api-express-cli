@@ -304,71 +304,72 @@ COMMAND LINE FLAGS
     private async executeAction(value: string, type: 'entity' | 'route' | 'model' | 'controller') {
         try {
             let indexSeparator = this.getIndexSeparator(value).index;
-            let nameRoute = this.addPrefix(indexSeparator, value, 'Router');
+            let route = String(value).toLocaleLowerCase();
+            let nameRoute = this.addPrefix(indexSeparator, route, 'Router');
             switch (type) {
                 case 'entity':
                     if (this.regExpEspecialCharacter.test(value))
                         throw new Error(ansiColors.redBright('Special characters are not allowed within the value'));
 
-                    const upperCamelCase = value.charAt(0).toUpperCase() + value.slice(1);
+                    let entity = String(value).toLocaleLowerCase();
+                    const upperCamelCase = entity.charAt(0).toUpperCase() + entity.slice(1);
                     let nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
                     let nameClassModelEntity = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
-                    await this.createRouter(nameRoute, value, nameClassController);
-                    await this.createController(nameClassController, value, nameClassModelEntity);
-                    this.createModel(nameClassModelEntity, value);
+                    await this.createRouter(nameRoute, entity, nameClassController);
+                    await this.createController(nameClassController, entity, nameClassModelEntity);
+                    this.createModel(nameClassModelEntity, entity);
                     break;
 
                 case 'route':
-                    if (fs.existsSync(this.pathRoute + this.replaceAll(value, '-') + `.${this.fileNameRoutes}`)) {
-                        console.log(ansiColors.redBright(`Router file '${value}' already exists`));
+                    if (fs.existsSync(this.pathRoute + this.replaceAll(route, '-') + `.${this.fileNameRoutes}`)) {
+                        console.log(ansiColors.redBright(`Router file '${route}' already exists`));
                         await inquirer.prompt({
                             type: 'confirm',
                             name: 'res',
-                            message: `you want to override the '${value}' router`,
+                            message: `you want to override the '${route}' router`,
                             default: false
                         }).then(async (answer2) => {
                             if (answer2.res)
-                                await this.createRouter(nameRoute, value);
+                                await this.createRouter(nameRoute, route);
                         });
                     } else
-                        await this.createRouter(nameRoute, value);
+                        await this.createRouter(nameRoute, route);
                     break;
                 case 'controller':
-                    let controller = value;
+                    let controller = String(value).toLocaleLowerCase();
                     controller = controller.charAt(0).toUpperCase() + controller.slice(1);
                     let nameClass = this.addPrefix(indexSeparator, controller, 'Controller');
-                    if (fs.existsSync(this.pathControllers + this.replaceAll(value, '-') + `.${this.fileNameController}`)) {
-                        console.log(ansiColors.redBright(`Controller '${value}' already exists`));
+                    if (fs.existsSync(this.pathControllers + this.replaceAll(controller, '-') + `.${this.fileNameController}`)) {
+                        console.log(ansiColors.redBright(`Controller '${value.toLocaleLowerCase()}' already exists`));
                         await inquirer.prompt({
                             type: 'confirm',
                             name: 'res',
-                            message: `you want to override the '${value}' controller`,
+                            message: `you want to override the '${value.toLocaleLowerCase()}' controller`,
                             default: false
                         }).then(async (answer2) => {
                             if (answer2.res)
-                                await this.createController(nameClass, value);
+                                await this.createController(nameClass, value.toLocaleLowerCase());
                         });
                     } else
-                        await this.createController(nameClass, value);
+                        await this.createController(nameClass, value.toLocaleLowerCase());
                     break;
                 case 'model':
-                    let model: string;
-                    model = String(value).toLocaleLowerCase();
+                    let model = String(value).toLocaleLowerCase();
                     model = model.charAt(0).toUpperCase() + model.slice(1);
                     let nameClassModel = this.addPrefix(indexSeparator, model, 'Model');
-                    if (fs.existsSync(this.pathModel + this.replaceAll(value, '-') + '.model.ts')) {
-                        console.log(ansiColors.redBright(`Controller '${value}' already exists`));
+                    if (fs.existsSync(this.pathModel + this.replaceAll(value.toLocaleLowerCase(), '-') + '.' + this.fileNameModel)) {
+                        console.log(ansiColors.redBright(`Controller '${value.toLocaleLowerCase()}' already exists`));
                         await inquirer.prompt({
                             type: 'confirm',
                             name: 'res',
-                            message: `you want to override the '${value}' model`,
+                            message: `you want to override the '${value.toLocaleLowerCase()}' model`,
                             default: false
                         }).then((answer2) => {
                             if (answer2.res)
-                                this.createModel(nameClassModel, value);
+                                this.createModel(nameClassModel, value.toLocaleLowerCase());
                         });
                     } else
-                        this.createModel(nameClassModel, value);
+                        this.createModel(nameClassModel, value.toLocaleLowerCase());
                     break;
             }
         } catch (error: any) {
