@@ -1,9 +1,7 @@
 import { createFile, FileDefinition } from "ts-code-generator";
 import fs from 'node:fs';
 import path from 'node:path';
-import readLine from 'readline';
-import { exec } from "node:child_process";
-import { Errors } from "./errors.class";
+import readLine from 'node:readline';
 import { FileControl } from "./file.class";
 import { Mixin } from 'ts-mixer';
 import { PackageFile } from "./package-file.class";
@@ -13,7 +11,7 @@ import { Module } from "./module.class";
 import { Config } from "./config.class";
 import { Common } from "./common.class";
 
-export abstract class Entities extends Mixin(Errors, PackageFile, Common, Config, FileControl, Module) {
+export abstract class Entities extends Mixin(PackageFile, Common, Config, FileControl, Module) {
     //#region Properties
 
     //#endregion
@@ -31,13 +29,20 @@ export abstract class Entities extends Mixin(Errors, PackageFile, Common, Config
                 if (fs.existsSync(pathWork))
                     fs.rmSync(pathWork, { recursive: true });
                 if (!fs.existsSync(pathWork)) {
-                    const devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
-                    const _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
-                    spinnies.add('spinner-1', { text: ansiColors.blueBright('Installing packages') });
+                    let devPackages = '@types/morgan @types/express @types/node @types/bcryptjs @types/cryptr @types/jsonwebtoken nodemon typescript';
+                    let _package = 'express morgan dotenv dotenv-expand bcryptjs cryptr jsonwebtoken';
 
-                    await this.executeTerminal(`npm i ${_package}`);
-                    await this.executeTerminal(`npm i ${devPackages} -D`);
-                    spinnies.succeed('spinner-1', { text: ansiColors.greenBright('Done installation') });
+                    _package = await this.getPackageNotInstalled(_package.split(' '), 'dependencies');
+                    if (_package != '') {
+                        spinnies.add('spinner-1', { text: ansiColors.blueBright('Installing packages') });
+
+                        await this.executeTerminal(`npm i ${_package}`);
+                        devPackages = await this.getPackageNotInstalled(devPackages.split(' '), 'devDependencies');
+                        if (devPackages != '')
+                            await this.executeTerminal(`npm i ${devPackages} -D`);
+                        spinnies.succeed('spinner-1', { text: ansiColors.greenBright('Done installation') });
+                    }
+
                     const folders = this.getSubdirs().filter(value => value != 'models' && value != 'databases' && value != 'files' && value != 'services');
                     folders.forEach((value) => {
                         fs.mkdirSync(pathWork + '/' + value, { recursive: true });

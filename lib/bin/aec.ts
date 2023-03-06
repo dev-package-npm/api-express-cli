@@ -14,6 +14,7 @@ export default class Aec extends Entities {
     private abrevCommand: string = 'aec';
     private fullCommand: string = 'api-express-cli';
     private pathPackage = path.join(path.resolve(), '/package.json');
+    private regExpEspecialCharacter: RegExp = /[!@#$%^&*()+={}\[\]|\\:;'",.<>/?]/;
 
     private help: string = `
 Example command
@@ -75,18 +76,18 @@ COMMAND LINE FLAGS
                 }
                 else if (params == 'entity' || params == 'e') {
                     if (this.isExistModuleDatabase())
-                        await this.entity();
+                        await this.entity(this.input.slice(1));
                     else throw new Error(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. ') + ansiColors.blueBright(`Use aec or api-express-cli add db:mysql`));
                 }
                 else if (params == 'route' || params == 'r') {
-                    await this.route();
+                    await this.route(this.input.slice(1));
                 }
                 else if (params == 'controller' || params == 'c') {
-                    await this.controller();
+                    await this.controller(this.input.slice(1));
                 }
                 else if (params == 'model' || params == 'm') {
                     if (fs.existsSync(this.pathModel) && fs.existsSync(path.join(this.pathSettings, this.structureProject.subDir.settings.files.database)))
-                        await this.model();
+                        await this.model(this.input.slice(1));
                     else throw new Error(ansiColors.yellowBright('You can\'t create an entity because you haven\'t added the database module. ') + ansiColors.blueBright('Use aec or api-express-cli add db:mysql'));
                 }
                 else if (params == 'add' || params == 'ad') {
@@ -168,117 +169,79 @@ COMMAND LINE FLAGS
     }
 
     //#region 
-    private async route() {
+    private async route(params: Array<string>) {
         try {
-            await inquirer.prompt({
-                type: 'input',
-                name: 'route',
-                message: 'Write the name of the route: ',
-            }).then(async (answer) => {
-                let route: string;
-                route = answer.route;
-                let indexSeparator = this.getIndexSeparator(route).index;
-                let nameRoute = this.addPrefix(indexSeparator, route, 'Router');
-                if (fs.existsSync(this.pathRoute + this.replaceAll(answer.route, '-') + `.${this.fileNameRoutes}`)) {
-                    console.log(ansiColors.redBright(`Router file '${answer.route}' already exists`));
-                    await inquirer.prompt({
-                        type: 'confirm',
-                        name: 'res',
-                        message: `you want to override the '${answer.route}' router`,
-                        default: false
-                    }).then(async (answer2) => {
-                        if (answer2.res)
-                            await this.createRouter(nameRoute, answer.route);
-                    });
-                } else
-                    await this.createRouter(nameRoute, answer.route);
-            });
+            if (params.length != 0) {
+                for (const item of params) {
+                    await this.executeAction(item, 'route')
+                }
+            } else
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'route',
+                    message: 'Write the name of the route: ',
+                }).then(async (answer) => {
+                    await this.executeAction(answer.route, 'route');
+                });
         } catch (error: any) {
             throw new Error(error.message);
         }
     }
 
-    private async controller() {
+    private async controller(params: Array<string>) {
         try {
-            let controller: string;
-            await inquirer.prompt({
-                type: 'input',
-                name: 'controller',
-                message: 'Write the name of the controller: ',
-            }).then(async (answer) => {
-                controller = answer.controller;
-                controller = controller.charAt(0).toUpperCase() + controller.slice(1);
-                let indexSeparator = this.getIndexSeparator(controller).index;
-                let nameClass = this.addPrefix(indexSeparator, controller, 'Controller');
-                if (fs.existsSync(this.pathControllers + this.replaceAll(answer.controller, '-') + `.${this.fileNameController}`)) {
-                    console.log(ansiColors.redBright(`Controller '${answer.controller}' already exists`));
-                    await inquirer.prompt({
-                        type: 'confirm',
-                        name: 'res',
-                        message: `you want to override the '${answer.controller}' controller`,
-                        default: false
-                    }).then(async (answer2) => {
-                        if (answer2.res)
-                            await this.createController(nameClass, answer.controller);
-                    });
-                } else
-                    await this.createController(nameClass, answer.controller);
-            });
+            if (params.length != 0) {
+                for (const item of params) {
+                    await this.executeAction(item, 'controller')
+                }
+            } else
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'controller',
+                    message: 'Write the name of the controller: ',
+                }).then(async (answer) => {
+                    await this.executeAction(answer.controller, 'controller')
+                });
         } catch (error: any) {
             throw new Error(error.message);
         }
     }
 
-    private async model() {
+    private async model(params: Array<string>) {
         try {
-            await inquirer.prompt({
-                type: 'input',
-                name: 'model',
-                message: 'Write the name of the model: ',
-            }).then(async (answer) => {
-                let model: string;
-                model = String(answer.model).toLocaleLowerCase();
-                model = model.charAt(0).toUpperCase() + model.slice(1);
-                let indexSeparator = this.getIndexSeparator(model).index;
-                let nameClass = this.addPrefix(indexSeparator, model, 'Model');
-                if (fs.existsSync(this.pathModel + this.replaceAll(answer.model, '-') + '.model.ts')) {
-                    console.log(ansiColors.redBright(`Controller '${answer.model}' already exists`));
-                    await inquirer.prompt({
-                        type: 'confirm',
-                        name: 'res',
-                        message: `you want to override the '${answer.model}' model`,
-                        default: false
-                    }).then((answer2) => {
-                        if (answer2.res)
-                            this.createModel(nameClass, answer.model);
-                    });
-                } else
-                    this.createModel(nameClass, answer.model);
-            });
+            if (params.length != 0)
+                for (const item of params) {
+                    await this.executeAction(item, 'model');
+                }
+            else
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'model',
+                    message: 'Write the name of the model: ',
+                }).then(async (answer) => {
+                    await this.executeAction(answer.model, 'model');
+                });
         } catch (error: any) {
             throw new Error(error.message);
         }
     }
 
-    private async entity() {
+    private async entity(params: Array<string>) {
         try {
             let entity: string;
-            await inquirer.prompt({
-                type: 'input',
-                name: 'entity',
-                message: 'Write the name of the entity: ',
-            }).then(async (answer) => {
-                entity = answer.entity;
-                const upperCamelCase = entity.charAt(0).toUpperCase() + entity.slice(1);
-                let indexSeparator = this.getIndexSeparator(entity).index;
-                let nameRoute = this.addPrefix(indexSeparator, entity, 'Router');
-                let nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
-                let nameClassModel = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
-
-                await this.createRouter(nameRoute, answer.entity, nameClassController);
-                await this.createController(nameClassController, answer.entity, nameClassModel);
-                this.createModel(nameClassModel, answer.entity);
-            });
+            if (params.length != 0) {
+                for (const item of params) {
+                    await this.executeAction(item, 'entity');
+                }
+            } else
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'entity',
+                    message: 'Write the name of the entity: ',
+                }).then(async (answer) => {
+                    entity = answer.entity;
+                    await this.executeAction(entity, 'entity');
+                });
         } catch (error: any) {
             throw new Error(error.message);
         }
@@ -333,6 +296,81 @@ COMMAND LINE FLAGS
                         await this.interpretAnswer(answer.utilities, 'rm');
                     });
             } else throw new Error(ansiColors.blueBright('No modules to remove'));
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async executeAction(value: string, type: 'entity' | 'route' | 'model' | 'controller') {
+        try {
+            let indexSeparator = this.getIndexSeparator(value).index;
+            let nameRoute = this.addPrefix(indexSeparator, value, 'Router');
+            switch (type) {
+                case 'entity':
+                    if (this.regExpEspecialCharacter.test(value))
+                        throw new Error(ansiColors.redBright('Special characters are not allowed within the value'));
+
+                    const upperCamelCase = value.charAt(0).toUpperCase() + value.slice(1);
+                    let nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
+                    let nameClassModelEntity = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
+                    await this.createRouter(nameRoute, value, nameClassController);
+                    await this.createController(nameClassController, value, nameClassModelEntity);
+                    this.createModel(nameClassModelEntity, value);
+                    break;
+
+                case 'route':
+                    if (fs.existsSync(this.pathRoute + this.replaceAll(value, '-') + `.${this.fileNameRoutes}`)) {
+                        console.log(ansiColors.redBright(`Router file '${value}' already exists`));
+                        await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            message: `you want to override the '${value}' router`,
+                            default: false
+                        }).then(async (answer2) => {
+                            if (answer2.res)
+                                await this.createRouter(nameRoute, value);
+                        });
+                    } else
+                        await this.createRouter(nameRoute, value);
+                    break;
+                case 'controller':
+                    let controller = value;
+                    controller = controller.charAt(0).toUpperCase() + controller.slice(1);
+                    let nameClass = this.addPrefix(indexSeparator, controller, 'Controller');
+                    if (fs.existsSync(this.pathControllers + this.replaceAll(value, '-') + `.${this.fileNameController}`)) {
+                        console.log(ansiColors.redBright(`Controller '${value}' already exists`));
+                        await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            message: `you want to override the '${value}' controller`,
+                            default: false
+                        }).then(async (answer2) => {
+                            if (answer2.res)
+                                await this.createController(nameClass, value);
+                        });
+                    } else
+                        await this.createController(nameClass, value);
+                    break;
+                case 'model':
+                    let model: string;
+                    model = String(value).toLocaleLowerCase();
+                    model = model.charAt(0).toUpperCase() + model.slice(1);
+                    let nameClassModel = this.addPrefix(indexSeparator, model, 'Model');
+                    if (fs.existsSync(this.pathModel + this.replaceAll(value, '-') + '.model.ts')) {
+                        console.log(ansiColors.redBright(`Controller '${value}' already exists`));
+                        await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            message: `you want to override the '${value}' model`,
+                            default: false
+                        }).then((answer2) => {
+                            if (answer2.res)
+                                this.createModel(nameClassModel, value);
+                        });
+                    } else
+                        this.createModel(nameClassModel, value);
+                    break;
+            }
         } catch (error: any) {
             throw new Error(error.message);
         }
