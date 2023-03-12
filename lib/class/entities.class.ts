@@ -189,7 +189,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                             defaultExpression: `'${this.replaceAll(inputModel, '_')}'`
                         },
                         {
-                            name: 'primeryKey',
+                            name: 'primariKey',
                             defaultExpression: `'id'`,
                             scope: 'private',
                             type: 'string',
@@ -201,7 +201,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                         }
                     ],
                     constructorDef: {
-                        onWriteFunctionBody: writer => writer.write(`super(${nameClass}.table, ${nameClass}.primeryKey, ${nameClass}.fields);`)
+                        onWriteFunctionBody: writer => writer.write(`super(${nameClass}.table, ${nameClass}.primariKey, ${nameClass}.fields);`)
                     }
                 }
             ],

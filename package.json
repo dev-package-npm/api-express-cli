@@ -32,9 +32,11 @@
     "api-express-cli",
     "ws",
     "websockets",
-    "mvc",
     "mysql-promise",
-    ".env"
+    ".env",
+    "cuby-orm",
+    "cuby",
+    "orm"
   ],
   "author": "Jairo Rohatan",
   "license": "ISC",
