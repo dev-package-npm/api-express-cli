@@ -222,8 +222,9 @@ COMMAND LINE FLAGS
                     copySync(dirProject, params[0], {
                         filter: (src: string) => {
                             let srcFilter = src.split('api-base-express')[1];
-                            return !/node_modules|dist/.test(srcFilter);
-                        }
+                            return !/node_modules|dist|.gitkeep/.test(srcFilter);
+                        },
+                        overwrite: true
                     });
 
                     process.chdir(`./${params[0]}`);
@@ -468,6 +469,9 @@ COMMAND LINE FLAGS
                         await this.createController(nameClass, value.toLocaleLowerCase());
                     break;
                 case 'serivce':
+                    console.log(value);
+                    break;
+                case 'r+c':
                     console.log(value);
                     break;
             }
