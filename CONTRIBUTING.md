@@ -7,6 +7,8 @@
 
 * [Comandos importantes](#Comandos importantes)
 
+Token `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`
+
 Clonar el repositorio desde la rama development.
 
 ```
@@ -35,13 +37,16 @@ Comando para publicar el paquete npm.
 npm publish
 ```
 
-
-
 Comando para quitar una publicación de un paquete paquete npm.
 
 ```bash
 npm unpublish cuby-orm@1.x
 ```
 
+Comando para empaquetar desarrollo para probarlo.
+
+```bash
+npm pack
+```
 
 ## Quick start

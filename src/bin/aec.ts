@@ -74,7 +74,10 @@ COMMAND LINE FLAGS
                 this.printHelpForCommand(this.input[0]);
             }
             else if (fs.existsSync(this.pathPackage)) {
-                if (params == 'service' || params == 's') {
+                if (params.includes('db') && this.isExistModuleDatabase()) {
+                    await cuby.interpreInput(this.input);
+                }
+                else if (params == 'service' || params == 's') {
                     await this.service(this.input.slice(1));
                 }
                 else if (this.isExistModuleDatabase() && params == 'entity' || params == 'e') {
@@ -215,13 +218,16 @@ COMMAND LINE FLAGS
                 }
 
                 if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
-                    const dirProject = path.join(__dirname, `../../templates/${language.toLocaleLowerCase()}/api-base-express`);
+                    const dirProject = path.join(__dirname, `../../templates/${language.toLocaleLowerCase()}/api-base-express/`);
                     copySync(dirProject, params[0], {
-                        filter: (src: string) => { return !/node_modules|dist/.test(src); },
-                        overwrite: true
+                        filter: (src: string) => {
+                            let srcFilter = src.split('api-base-express')[1];
+                            return !/node_modules|dist/.test(srcFilter);
+                        }
                     });
+
                     process.chdir(`./${params[0]}`);
-                    await this.executeTerminal(`npm pkg set 'name'='${params[0]}'`);
+                    await this.executeTerminal(`npm pkg set name=${params[0]}`);
                     await this.executeTerminal('npm i');
                     await this.setPath();
                     await this.writeHashInKey(path.join(process.cwd(), './.env'));

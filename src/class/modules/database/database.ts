@@ -18,6 +18,9 @@ export class Database extends Mixin(Config, Env) {
                 await this.executeTerminal('npm i ' + this.packages);
                 this.spinnies.succeed('spinner-1', { text: ansiColors.greenBright('Done installation for database module') });
                 fs.mkdirSync(this.pathModel, { recursive: true });
+                // TODO Hacer que funcione por la cofiguración que tiene internamente cuby-orm
+                fs.mkdirSync('src/database/seeds', { recursive: true });
+                fs.mkdirSync('src/database/migrations', { recursive: true });
 
                 await this.createConfigDb();
             } else throw new Error(ansiColors.yellowBright(`A module \'${answer}\' has already been initialized`));

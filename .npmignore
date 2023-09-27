@@ -1,2 +1,7 @@
 tsconfig.json
 src
+api-express-cli-*.tgz
+.vscode
+.github
+!templates/**/src/
+!templates/**/tsconfig.*
