@@ -12,6 +12,8 @@ import { Entities } from '../class/entities.class';
 
 const cuby = new Cuby();
 
+type TAecOptions = 'serivce' | 'entity' | 'route' | 'controller' | 'r+c'
+
 export default class Aec extends Entities {
     //#region Private properties
     private input: string[];
@@ -28,17 +30,17 @@ Example command
 
 COMMAND LINE FLAGS ${this.isExistModuleDatabase() ? '\n    ' + this.entityHelp : ''}
     ${ansiColors.cyan('service, s ')}Create a service with the given name.
-    ${ansiColors.cyan('route, r ')}Create a route with the specified name.
-    ${ansiColors.cyan('r+c ')}Create a route and controller with the specified name.
-    ${ansiColors.cyan('controller, c ')}Create a controller with the specified name.
+    ${ansiColors.cyan('route, r ')}Create a route with the given name.
+    ${ansiColors.cyan('r+c ')}Create a route and controller with the given name.
+    ${ansiColors.cyan('controller, c ')}Create a controller with the given name.
     ${ansiColors.cyan('add, ad ')}Allow adding new features or modules.
-    ${ansiColors.cyan('remove, rm ')}Removes a package, which is added with the --add command.
+    ${ansiColors.cyan('remove, rm ')}Removes one of the utilities that is added.
     ${ansiColors.cyan('--help, -h ')}Print this message.
     ${ansiColors.cyan('--version, -v ')}Print version with package.
 
 COMMAND OPTIONS
     ${ansiColors.cyan('--name ')}Name files ${ansiColors.redBright('Not applied')}.
-    ${ansiColors.cyan('--add ')}Name module.`;
+    ${ansiColors.cyan('--add ')}Name module ${ansiColors.redBright('Not applied')}.`;
 
     private helpInitial: string = `
 Example command
@@ -73,11 +75,8 @@ COMMAND LINE FLAGS
                     console.log('Version', ansiColors.cyan(await this.getVersion()));
             }
             else if (fs.existsSync(this.pathPackage)) {
-                if (!fs.existsSync(this.pathIndexApi) && (params != 'init' && params != 'in'))
-                    throw new Error(ansiColors.blueBright('You must initialize your project'));
-
                 if (params == 'service' || params == 's') {
-                    console.log(this.input.slice(1));
+                    await this.service(this.input.slice(1));
                 }
                 else if (this.isExistModuleDatabase() && params == 'entity' || params == 'e') {
                     this.auxInput = this.input;
@@ -90,6 +89,9 @@ COMMAND LINE FLAGS
                 else if (params == 'controller' || params == 'c') {
                     await this.controller(this.input.slice(1));
                 }
+                else if (params == 'r+c') {
+                    await this.routeAndController(this.input.slice(1));
+                }
                 else if (params == 'add' || params == 'ad') {
                     await this.addUtilities(this.input.slice(1));
                 }
@@ -99,7 +101,7 @@ COMMAND LINE FLAGS
                 else throw new Error(ansiColors.yellowBright('Command is not valid'));
             }
             else if (params == 'create' || params == 'c') {
-                await this.initProject(this.input.slice(1));
+                await this.createProject(this.input.slice(1));
             }
             else throw new Error(ansiColors.yellowBright('Command is not valid'));
         } catch (error: any) {
@@ -110,6 +112,7 @@ COMMAND LINE FLAGS
     //#region Private methods
     private printHelp(): void {
         console.log(ansiColors.yellow(textSync(this.abrevCommand, { width: 80 })));
+        console.log("(Api Express Cli)");
 
         if (fs.existsSync(this.pathPackage))
             console.log(this.help, this.isExistModuleDatabase() ? cuby.getHelp() : '');
@@ -172,7 +175,7 @@ COMMAND LINE FLAGS
 
     //#region
 
-    private async initProject(params: Array<string>) {
+    private async createProject(params: Array<string>) {
         try {
             if (params.length != 0) {
                 if (this.regExpEspecialCharacter.test(params[0]) || params[0].charAt(0) == '-' || params[0].charAt(0) == '_')
@@ -181,29 +184,43 @@ COMMAND LINE FLAGS
                 if (fs.existsSync(path.join(path.resolve(), params[0])))
                     fs.rmSync(path.join(path.resolve(), params[0]), { recursive: true });
 
-                if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
-                    copySync(path.join(__dirname, '../../templates/ts/api-base-express'), params[0], {
-                        filter: (src: string) => { return !/node_modules|dist/.test(src); },
-                        overwrite: true
-                    });
-                    process.chdir(`./${params[0]}`);
-                    await this.executeTerminal('npm i');
-                    await this.setPath();
-                    await this.writeHashInKey(path.join(process.cwd(), './.env'));
-                    this.executeTerminal('code --version').then(async () => {
-                        await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            default: true,
-                            message: 'Would you like to open it with VS Code',
-                        }).then(async (answer) => {
-                            if (answer.res)
-                                await this.executeTerminal('code .');
+                const typeLanguage = await inquirer.prompt({
+                    type: 'list',
+                    choices: [
+                        { value: 'TS', name: 'Typescript' },
+                        { value: 'JS', name: 'Javascript', disabled: true }
+                    ],
+                    name: 'res',
+                    message: 'Select the language'
+                });
+
+                if (typeLanguage) {
+                    if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
+                        const dirProject = path.join(__dirname, `../../templates/${String(typeLanguage.res).toLocaleLowerCase()}/api-base-express`);
+                        copySync(dirProject, params[0], {
+                            filter: (src: string) => { return !/node_modules|dist/.test(src); },
+                            overwrite: true
                         });
-                    });
+                        process.chdir(`./${params[0]}`);
+                        await this.executeTerminal('npm i');
+                        await this.setPath();
+                        await this.writeHashInKey(path.join(process.cwd(), './.env'));
+                        this.executeTerminal('code --version').then(async () => {
+                            await inquirer.prompt({
+                                type: 'confirm',
+                                name: 'res',
+                                default: true,
+                                message: 'Would you like to open it with VS Code',
+                            }).then(async (answer) => {
+                                if (answer.res)
+                                    await this.executeTerminal('code .');
+                            });
+                        });
+                    }
+                    else throw new Error(ansiColors.yellowBright(`A project with name '${ansiColors.blueBright(params[0])}' already exists`));
                 }
-                else throw new Error(ansiColors.yellowBright(`A project with name '${ansiColors.blueBright(params[0])}' already exists`));
-            }
+
+            } else throw new Error(ansiColors.redBright("No project name specified. ") + ansiColors.blueBright(`Use ${this.abrevCommand} create -h for more help`));
         } catch (error: any) {
             throw new Error(ansiColors.redBright(error.message));
         }
@@ -221,7 +238,9 @@ COMMAND LINE FLAGS
                     name: 'route',
                     message: 'Write the name of the route: ',
                 }).then(async (answer) => {
-                    await this.executeAction(answer.route, 'route');
+                    for (const item of String(answer.route).split('')) {
+                        await this.executeAction(item, 'route')
+                    }
                 });
         } catch (error: any) {
             throw new Error(error.message);
@@ -238,9 +257,11 @@ COMMAND LINE FLAGS
                 await inquirer.prompt({
                     type: 'input',
                     name: 'controller',
-                    message: 'Write the name of the controller: ',
+                    message: 'Write the name of the controller separated by space: ',
                 }).then(async (answer) => {
-                    await this.executeAction(answer.controller, 'controller')
+                    for (const item of String(answer.controller).split('')) {
+                        await this.executeAction(item, 'controller')
+                    }
                 });
         } catch (error: any) {
             throw new Error(error.message);
@@ -249,7 +270,6 @@ COMMAND LINE FLAGS
 
     private async entity(params: Array<string>) {
         try {
-            let entity: string;
             if (params.length != 0) {
                 for (const item of params) {
                     await this.executeAction(item, 'entity');
@@ -258,10 +278,53 @@ COMMAND LINE FLAGS
                 await inquirer.prompt({
                     type: 'input',
                     name: 'entity',
-                    message: 'Write the name of the entity: ',
+                    message: 'Write the name of the entity separated by space: ',
                 }).then(async (answer) => {
-                    entity = answer.entity;
-                    await this.executeAction(entity, 'entity');
+                    for (const item of String(answer.entity).split(' ')) {
+                        await this.executeAction(item, 'entity');
+                    }
+                });
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async routeAndController(params: Array<string>) {
+        try {
+            if (params.length != 0) {
+                for (const item of params) {
+                    await this.executeAction(item, 'r+c');
+                }
+            } else
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'routeController',
+                    message: 'Write the name separated by space: ',
+                }).then(async (answer) => {
+                    for (const item of String(answer.routeController).split(' ')) {
+                        await this.executeAction(item, 'r+c');
+                    }
+                });
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    private async service(params: Array<string>) {
+        try {
+            if (params.length != 0) {
+                for (const item of params) {
+                    await this.executeAction(item, 'serivce');
+                }
+            } else
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'service',
+                    message: 'Write the name separated by space: ',
+                }).then(async (answer) => {
+                    for (const item of String(answer.service).split(' ')) {
+                        await this.executeAction(item, 'serivce');
+                    }
                 });
         } catch (error: any) {
             throw new Error(error.message);
@@ -327,16 +390,17 @@ COMMAND LINE FLAGS
         }
     }
 
-    private async executeAction(value: string, type: 'entity' | 'route' | 'controller') {
+    private async executeAction(value: string, type: TAecOptions) {
         try {
+            if (this.regExpEspecialCharacter.test(value) || value.charAt(0) == '-' || value.charAt(0) == '_')
+                throw new Error(ansiColors.redBright('Special characters are not allowed within the value'));
+
             let indexSeparator = this.getIndexSeparator(value).index;
             let route = String(value).toLocaleLowerCase();
             let nameRoute = this.addPrefix(indexSeparator, route, 'Router');
+
             switch (type) {
                 case 'entity':
-                    if (this.regExpEspecialCharacter.test(value))
-                        throw new Error(ansiColors.redBright('Special characters are not allowed within the value'));
-
                     let entity = String(value).toLocaleLowerCase();
                     const upperCamelCase = entity.charAt(0).toUpperCase() + entity.slice(1);
                     let nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
@@ -344,9 +408,7 @@ COMMAND LINE FLAGS
                     await this.createRouter(nameRoute, entity, nameClassController);
                     await this.createController(nameClassController, entity, nameClassModelEntity);
                     await cuby.interpreInput(this.auxInput);
-                    // this.createModel(nameClassModelEntity, entity);
                     break;
-
                 case 'route':
                     if (fs.existsSync(this.pathRoute + this.replaceAll(route, '-') + `.${this.fileNameRoutes}`)) {
                         console.log(ansiColors.redBright(`Router file '${route}' already exists`));
@@ -380,11 +442,15 @@ COMMAND LINE FLAGS
                     } else
                         await this.createController(nameClass, value.toLocaleLowerCase());
                     break;
+                case 'serivce':
+                    console.log(value);
+                    break;
             }
         } catch (error: any) {
             throw new Error(error.message);
         }
     }
     //#endregion
+
     //#endregion
 }

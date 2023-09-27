@@ -12,12 +12,39 @@ export class PackageFile extends Common {
     async getVersion(): Promise<string> {
         const { version }: { version: string } | { [k: string]: any } = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
         return version;
-
     }
 
     async getProperties(paramsToSearch: string): Promise<string> {
         try {
             const content = fs.createReadStream(this.pathFilePackage, { encoding: 'utf-8' });
+            const rl = readLine.createInterface({ input: content });
+            let dataResponse: string = '';
+            let controlRead: boolean = false;
+            for await (const line of rl) {
+                if (line.includes(paramsToSearch)) {
+                    if (line.includes('{') || line.includes('}') || line.includes('[') || line.includes(']')) {
+                        controlRead = true;
+                    }
+                    else
+                        return dataResponse = line.split(':')[1];
+                }
+                if (controlRead && (line.includes('}') || line.includes(']'))) {
+                    controlRead = false;
+                    return dataResponse;
+                }
+                if (controlRead && (!line.includes('{') && !line.includes('[')))
+                    dataResponse += line + '\n';
+
+            }
+            return dataResponse;
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    async getPropertiesNpmPackage(paramsToSearch: string): Promise<string> {
+        try {
+            const content = fs.createReadStream(path.join(__dirname, '../../package.json'), { encoding: 'utf-8' });
             const rl = readLine.createInterface({ input: content });
             let dataResponse: string = '';
             let controlRead: boolean = false;

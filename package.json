@@ -11,11 +11,9 @@
     "aec": "./build/index.js"
   },
   "scripts": {
-    "build": "rm -rf build && npx tsc && npm run cp-file-txt",
-    "watch-ts": "npm run build && npx tsc -w",
-    "dev:watch-file": "node ./build/watch-file",
+    "build": "rm -rf build && npx tsc",
+    "watch-ts": "rm -rf build && npx tsc -w",
     "prepare": "npm run build",
-    "cp-file-txt": "node ./build/functions/files",
     "test": "node ./build/test/blah.test.js"
   },
   "repository": {
