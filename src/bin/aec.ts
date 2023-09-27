@@ -36,11 +36,7 @@ COMMAND LINE FLAGS ${this.isExistModuleDatabase() ? '\n    ' + this.entityHelp :
     ${ansiColors.cyan('add, ad ')}Allow adding new features or modules.
     ${ansiColors.cyan('remove, rm ')}Removes one of the utilities that is added.
     ${ansiColors.cyan('--help, -h ')}Print this message.
-    ${ansiColors.cyan('--version, -v ')}Print version with package.
-
-COMMAND OPTIONS
-    ${ansiColors.cyan('--name ')}Name files ${ansiColors.redBright('Not applied')}.
-    ${ansiColors.cyan('--add ')}Name module ${ansiColors.redBright('Not applied')}.`;
+    ${ansiColors.cyan('--version, -v ')}Print version with package.`;
 
     private helpInitial: string = `
 Example command
@@ -73,6 +69,9 @@ COMMAND LINE FLAGS
             else if (params == '-v' || params == '--version') {
                 if (this.validateQuantityArguments(this.input, 1))
                     console.log('Version', ansiColors.cyan(await this.getVersion()));
+            }
+            else if (this.input[1] == '--help' || this.input[1] == '-h') {
+                this.printHelpForCommand(this.input[0]);
             }
             else if (fs.existsSync(this.pathPackage)) {
                 if (params == 'service' || params == 's') {
@@ -125,6 +124,22 @@ COMMAND LINE FLAGS
             return false;
         }
         else return true;
+    }
+
+    protected printHelpForCommand(params: string, abrevCommand?: string): void {
+        try {
+            const objParams: any = {};
+            switch (params) {
+                case 'create':
+                    console.log(`${abrevCommand || this.abrevCommand} ${params} ${ansiColors.blueBright('<api-example> --lang ts | js')}`);
+                    break;
+                default:
+                    throw new Error(ansiColors.yellowBright(`The ${ansiColors.blueBright(params)} command has no help `));
+                    break;
+            }
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
     }
 
     private async interpretAttibutes(input: Array<string>): Promise<void> {
@@ -180,45 +195,49 @@ COMMAND LINE FLAGS
             if (params.length != 0) {
                 if (this.regExpEspecialCharacter.test(params[0]) || params[0].charAt(0) == '-' || params[0].charAt(0) == '_')
                     throw new Error(ansiColors.redBright("Unsupported characters: " + params[0]));
-                // TODO: quitar 
-                if (fs.existsSync(path.join(path.resolve(), params[0])))
-                    fs.rmSync(path.join(path.resolve(), params[0]), { recursive: true });
 
-                const typeLanguage = await inquirer.prompt({
-                    type: 'list',
-                    choices: [
-                        { value: 'TS', name: 'Typescript' },
-                        { value: 'JS', name: 'Javascript', disabled: true }
-                    ],
-                    name: 'res',
-                    message: 'Select the language'
-                });
-
-                if (typeLanguage) {
-                    if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
-                        const dirProject = path.join(__dirname, `../../templates/${String(typeLanguage.res).toLocaleLowerCase()}/api-base-express`);
-                        copySync(dirProject, params[0], {
-                            filter: (src: string) => { return !/node_modules|dist/.test(src); },
-                            overwrite: true
-                        });
-                        process.chdir(`./${params[0]}`);
-                        await this.executeTerminal('npm i');
-                        await this.setPath();
-                        await this.writeHashInKey(path.join(process.cwd(), './.env'));
-                        this.executeTerminal('code --version').then(async () => {
-                            await inquirer.prompt({
-                                type: 'confirm',
-                                name: 'res',
-                                default: true,
-                                message: 'Would you like to open it with VS Code',
-                            }).then(async (answer) => {
-                                if (answer.res)
-                                    await this.executeTerminal('code .');
-                            });
-                        });
-                    }
-                    else throw new Error(ansiColors.yellowBright(`A project with name '${ansiColors.blueBright(params[0])}' already exists`));
+                let language: string = 'ts';
+                const enableJs = false;
+                if (params.length == 3 && params[1] == '--lang' && (String(params[2]).toLocaleLowerCase() == 'ts' || String(params[2]).toLocaleLowerCase() == 'js'))
+                    language = enableJs ? params[2] : 'ts';
+                else if (params.length != 1) throw new Error(ansiColors.redBright("One of the values passed are not valid, or values are missing"));
+                else {
+                    const typeLanguage = await inquirer.prompt({
+                        type: 'list',
+                        choices: [
+                            { value: 'TS', name: 'Typescript' },
+                            { value: 'JS', name: 'Javascript', disabled: true }
+                        ],
+                        name: 'res',
+                        message: 'Select the language'
+                    });
+                    language = typeLanguage != undefined ? typeLanguage.res : 'ts';
                 }
+
+                if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
+                    const dirProject = path.join(__dirname, `../../templates/${language.toLocaleLowerCase()}/api-base-express`);
+                    copySync(dirProject, params[0], {
+                        filter: (src: string) => { return !/node_modules|dist/.test(src); },
+                        overwrite: true
+                    });
+                    process.chdir(`./${params[0]}`);
+                    await this.executeTerminal(`npm pkg set 'name'='${params[0]}'`);
+                    await this.executeTerminal('npm i');
+                    await this.setPath();
+                    await this.writeHashInKey(path.join(process.cwd(), './.env'));
+                    this.executeTerminal('code --version').then(async () => {
+                        await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            default: true,
+                            message: 'Would you like to open it with VS Code',
+                        }).then(async (answer) => {
+                            if (answer.res)
+                                await this.executeTerminal('code .');
+                        });
+                    });
+                }
+                else throw new Error(ansiColors.yellowBright(`A project with name '${ansiColors.blueBright(params[0])}' already exists`));
 
             } else throw new Error(ansiColors.redBright("No project name specified. ") + ansiColors.blueBright(`Use ${this.abrevCommand} create -h for more help`));
         } catch (error: any) {
