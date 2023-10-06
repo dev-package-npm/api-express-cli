@@ -8,7 +8,7 @@ import { Env } from '../../env.class';
 import { Config } from '../../config.class';
 
 export class Database extends Mixin(Config, Env) {
-    private packages: string[] = ['cuby-orm'];
+    private packages: string[] = ['cuby-orm@latest'];
 
     protected async initDatabase(answer: string) {
         try {
@@ -25,6 +25,8 @@ export class Database extends Mixin(Config, Env) {
                 await this.createConfigDb();
             } else throw new Error(ansiColors.yellowBright(`A module \'${answer}\' has already been initialized`));
         } catch (error: any) {
+            if (this.spinnies.hasActiveSpinners())
+                this.spinnies.fail('spinner-1');
             throw new Error(error.message);
         }
     }
@@ -51,6 +53,8 @@ export class Database extends Mixin(Config, Env) {
             else
                 throw new Error(ansiColors.yellowBright(`Could not delete module, because there are model files.${ansiColors.blueBright(' (Delete manually)')}`));
         } catch (error: any) {
+            if (this.spinnies.hasActiveSpinners())
+                this.spinnies.fail('spinner-1');
             throw new Error(error.message);
         }
     }

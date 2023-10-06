@@ -2,7 +2,7 @@
 import ansiColors from 'ansi-colors';
 import fs from 'fs';
 import { copySync } from 'fs-extra';
-import path from 'path';
+import path, { resolve } from 'path';
 
 import { textSync } from 'figlet';
 import inquirer from 'inquirer';
@@ -12,7 +12,7 @@ import { Entities } from '../class/entities.class';
 
 const cuby = new Cuby();
 
-type TAecOptions = 'serivce' | 'entity' | 'route' | 'controller' | 'r+c'
+type TAecOptions = 'service' | 'entity' | 'route' | 'controller' | 'r+c'
 
 export default class Aec extends Entities {
     //#region Private properties
@@ -24,19 +24,22 @@ export default class Aec extends Entities {
 
     private entityHelp: string = `${ansiColors.cyan('entity, e ')}Create a set of files: route, controller and model.`;
     private help: string = `
-Example command
-    ${ansiColors.cyan(this.abrevCommand + ' <command> --help ')}More information
-    ${ansiColors.cyan(this.abrevCommand + ' <flags> <options> ')}More information
+${ansiColors.yellowBright("api-express-cli")}
+    Example command
+        ${ansiColors.cyan(this.abrevCommand + ' <command> --help ')}More information
+        ${ansiColors.cyan(this.abrevCommand + ' <flags> <options> ')}More information
 
-COMMAND LINE FLAGS ${this.isExistModuleDatabase() ? '\n    ' + this.entityHelp : ''}
-    ${ansiColors.cyan('service, s ')}Create a service with the given name.
-    ${ansiColors.cyan('route, r ')}Create a route with the given name.
-    ${ansiColors.cyan('r+c ')}Create a route and controller with the given name.
-    ${ansiColors.cyan('controller, c ')}Create a controller with the given name.
-    ${ansiColors.cyan('add, ad ')}Allow adding new features or modules.
-    ${ansiColors.cyan('remove, rm ')}Removes one of the utilities that is added.
-    ${ansiColors.cyan('--help, -h ')}Print this message.
-    ${ansiColors.cyan('--version, -v ')}Print version with package.`;
+    COMMAND LINE FLAGS ${this.isExistModuleDatabase() ? `
+        ${this.entityHelp}` : ''}
+        ${ansiColors.cyan('service, s ')}Create a service with the given name.
+        ${ansiColors.cyan('route, r ')}Create a route with the given name.
+        ${ansiColors.cyan('r+c ')}Create a route and controller with the given name.
+        ${ansiColors.cyan('controller, c ')}Create a controller with the given name.
+        ${ansiColors.cyan('add, ad ')}Allow adding new features or modules.
+        ${ansiColors.cyan('remove, rm ')}Removes one of the utilities that is added.
+
+        ${ansiColors.cyan('--help, -h ')}Print this message.
+        ${ansiColors.cyan('--version, -v ')}Print version with package.`;
 
     private helpInitial: string = `
 Example command
@@ -117,7 +120,7 @@ COMMAND LINE FLAGS
         console.log("(Api Express Cli)");
 
         if (fs.existsSync(this.pathPackage))
-            console.log(this.help, this.isExistModuleDatabase() ? cuby.getHelp() : '');
+            console.log(this.help, this.isExistModuleDatabase() ? cuby.getHelp().split('\n').filter(value => (!value.includes('cuby') || value.includes('db:config'))).join('\n') : '');
         else console.log(this.helpInitial);
     }
 
@@ -218,6 +221,7 @@ COMMAND LINE FLAGS
                 }
 
                 if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
+                    this.spinnies.add('spinner-create', { text: ansiColors.blueBright("Creating project and installing dependencies.") });
                     const dirProject = path.join(__dirname, `../../templates/${language.toLocaleLowerCase()}/api-base-express/`);
                     copySync(dirProject, params[0], {
                         filter: (src: string) => {
@@ -232,6 +236,7 @@ COMMAND LINE FLAGS
                     await this.executeTerminal('npm i');
                     await this.setPath();
                     await this.writeHashInKey(path.join(process.cwd(), './.env'));
+                    this.spinnies.succeed('spinner-create');
                     this.executeTerminal('code --version').then(async () => {
                         await inquirer.prompt({
                             type: 'confirm',
@@ -248,6 +253,8 @@ COMMAND LINE FLAGS
 
             } else throw new Error(ansiColors.redBright("No project name specified. ") + ansiColors.blueBright(`Use ${this.abrevCommand} create -h for more help`));
         } catch (error: any) {
+            if (this.spinnies.hasActiveSpinners())
+                this.spinnies.fail('spinner-create');
             throw new Error(ansiColors.redBright(error.message));
         }
     }
@@ -340,7 +347,7 @@ COMMAND LINE FLAGS
         try {
             if (params.length != 0) {
                 for (const item of params) {
-                    await this.executeAction(item, 'serivce');
+                    await this.executeAction(item, 'service');
                 }
             } else
                 await inquirer.prompt({
@@ -349,7 +356,7 @@ COMMAND LINE FLAGS
                     message: 'Write the name separated by space: ',
                 }).then(async (answer) => {
                     for (const item of String(answer.service).split(' ')) {
-                        await this.executeAction(item, 'serivce');
+                        await this.executeAction(item, 'service');
                     }
                 });
         } catch (error: any) {
@@ -425,14 +432,16 @@ COMMAND LINE FLAGS
             let route = String(value).toLocaleLowerCase();
             let nameRoute = this.addPrefix(indexSeparator, route, 'Router');
 
+            let nameClassController;
+            let nameClassModelEntity;
             switch (type) {
                 case 'entity':
                     let entity = String(value).toLocaleLowerCase();
                     const upperCamelCase = entity.charAt(0).toUpperCase() + entity.slice(1);
-                    let nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
-                    let nameClassModelEntity = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
-                    await this.createRouter(nameRoute, entity, nameClassController);
-                    await this.createController(nameClassController, entity, nameClassModelEntity);
+                    nameClassController = this.addPrefix(indexSeparator, upperCamelCase, 'Controller');
+                    nameClassModelEntity = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
+                    await this.createRouter({ nameRoute, inputRouter: entity, nameController: nameClassController });
+                    await this.createController({ nameClass: nameClassController, inputController: entity, nameModel: nameClassModelEntity });
                     await cuby.interpreInput(this.auxInput);
                     break;
                 case 'route':
@@ -441,14 +450,14 @@ COMMAND LINE FLAGS
                         await inquirer.prompt({
                             type: 'confirm',
                             name: 'res',
-                            message: `you want to override the '${route}' router`,
+                            message: `Would you like to overwrite the ${route} route?`,
                             default: false
                         }).then(async (answer2) => {
                             if (answer2.res)
-                                await this.createRouter(nameRoute, route);
+                                await this.createRouter({ nameRoute, inputRouter: route, forceOverwrite: true });
                         });
                     } else
-                        await this.createRouter(nameRoute, route);
+                        await this.createRouter({ nameRoute, inputRouter: route });
                     break;
                 case 'controller':
                     let controller = String(value).toLocaleLowerCase();
@@ -459,20 +468,71 @@ COMMAND LINE FLAGS
                         await inquirer.prompt({
                             type: 'confirm',
                             name: 'res',
-                            message: `you want to override the '${value.toLocaleLowerCase()}' controller`,
+                            message: `Would you like to overwrite the ${value.toLocaleLowerCase()} controller?`,
                             default: false
                         }).then(async (answer2) => {
                             if (answer2.res)
-                                await this.createController(nameClass, value.toLocaleLowerCase());
+                                await this.createController({ nameClass, inputController: value.toLocaleLowerCase(), forceOverwrite: true });
                         });
                     } else
-                        await this.createController(nameClass, value.toLocaleLowerCase());
+                        await this.createController({ nameClass, inputController: value.toLocaleLowerCase() });
                     break;
-                case 'serivce':
-                    console.log(value);
+                case 'service':
+                    console.log("No implemented");
                     break;
                 case 'r+c':
-                    console.log(value);
+                    let routeController = String(value).toLocaleLowerCase();
+                    const rcUpperCamelCase = routeController.charAt(0).toUpperCase() + routeController.slice(1);
+                    nameClassController = this.addPrefix(indexSeparator, rcUpperCamelCase, 'Controller');
+                    if (fs.existsSync(this.pathControllers + this.replaceAll(routeController, '-') + `.${this.fileNameController}`) && fs.existsSync(this.pathRoute + this.replaceAll(routeController, '-') + `.${this.fileNameRoutes}`)) {
+                        console.log(ansiColors.redBright(`Controller and route '${value.toLocaleLowerCase()}' already exists`));
+                        const answer = await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            message: `Would you like to overwrite the controller and the route? '${ansiColors.blueBright(value.toLocaleLowerCase())}'`,
+                            default: false
+                        });
+
+                        if (answer.res) {
+                            await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
+                            await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
+                            console.log(ansiColors.greenBright("Done"));
+                        }
+                    }
+                    else if (fs.existsSync(this.pathControllers + this.replaceAll(routeController, '-') + `.${this.fileNameController}`)) {
+                        console.log(ansiColors.redBright(`Controller '${value.toLocaleLowerCase()}' already exists`));
+                        const answer = await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            message: `Would you like to overwrite the '${ansiColors.blueBright(value.toLocaleLowerCase())}' controller?`,
+                            default: false
+                        });
+
+                        if (answer.res) {
+                            await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
+                            await this.createController({ nameClass: nameClassController, inputController: routeController });
+                            console.log(ansiColors.greenBright("Done"));
+                        }
+                    }
+                    else if (fs.existsSync(this.pathRoute + this.replaceAll(routeController, '-') + `.${this.fileNameRoutes}`)) {
+                        console.log(ansiColors.redBright(`Route '${value.toLocaleLowerCase()}' already exists`));
+                        const answer = await inquirer.prompt({
+                            type: 'confirm',
+                            name: 'res',
+                            message: `Would you like to overwrite the '${ansiColors.blueBright(value.toLocaleLowerCase())}' route? `,
+                            default: false
+                        });
+
+                        if (answer.res) {
+                            await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController });
+                            await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
+                            console.log(ansiColors.greenBright("Done"));
+                        }
+                    } else {
+                        await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
+                        await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
+                        console.log(ansiColors.greenBright("Done"));
+                    }
                     break;
             }
         } catch (error: any) {
