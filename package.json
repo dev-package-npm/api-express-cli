@@ -58,7 +58,7 @@
     "ansi-colors": "^4.1.3",
     "bcryptjs": "^2.4.3",
     "cryptr": "^6.1.0",
-    "cuby-orm": "^0.0.4-2",
+    "cuby-orm": "^0.0.4-4",
     "dotenv": "^16.0.3",
     "dotenv-expand": "^10.0.0",
     "express": "^4.18.2",
