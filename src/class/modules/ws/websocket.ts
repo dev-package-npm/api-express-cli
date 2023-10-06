@@ -38,6 +38,8 @@ export class Websocket extends Mixin(Config, Env) {
 
             } else throw new Error(ansiColors.yellowBright('A module \'WS (SocketIo)\' has already been initialized'));
         } catch (error: any) {
+            if (this.spinnies.hasActiveSpinners())
+                this.spinnies.fail('spinner-1');
             throw new Error(error.message);
         }
     }
@@ -51,6 +53,8 @@ export class Websocket extends Mixin(Config, Env) {
             this.removeControllerWs();
             await this.removeRouteWs();
         } catch (error: any) {
+            if (this.spinnies.hasActiveSpinners())
+                this.spinnies.fail('spinner-1');
             throw new Error(error.message);
         }
     }

@@ -9,12 +9,13 @@ import ansiColors from "ansi-colors";
 import { Config } from "./config.class";
 import { Common } from "./common.class";
 import { Module } from "./module.class";
+
 export abstract class Entities extends Mixin(PackageFile, Common, Config, FileControl, Module) {
     //#region Properties
 
     //#endregion
 
-    protected async createRouter(nameRoute: string, inputRouter: string, nameController?: string) {
+    protected async createRouter({ nameRoute, inputRouter, nameController, forceOverwrite }: { nameRoute: string, inputRouter: string, nameController?: string, forceOverwrite?: boolean }) {
         let file;
         if (nameController != undefined) {
             let variableController = nameController?.charAt(0).toLowerCase() + nameController?.slice(1);
@@ -96,8 +97,10 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                 defaultExportExpression: `${nameRoute}`
             });
         if (fs.existsSync(this.pathRoute)) {
+            if (fs.existsSync(this.pathRoute + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
+            console.log((this.pathRoute + file.fileName).split(this.structureProject.dir)[1]);
             fs.writeFileSync(`${this.pathRoute}${file.fileName}`, file.write());
-            await this.addLineRoute(inputRouter, nameRoute);
+            await this.addLineRoute({ inputRouter, nameRoute, forceOverwrite });
         }
         else {
             let folder: any = this.pathRoute.split(path.sep);
@@ -106,7 +109,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
         }
     }
 
-    protected async createController(nameClass: string, inputController: string, nameModel?: string) {
+    protected async createController({ nameClass, inputController, nameModel, forceOverwrite }: { nameClass: string, inputController: string, nameModel?: string, forceOverwrite?: boolean }) {
         let file = createFile({
             fileName: `${this.replaceAll(inputController, '-')}.${this.fileNameController}`,
             classes: [
@@ -271,8 +274,11 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                     writer.writeLine('//#region Models');
                 }
             });
-        if (fs.existsSync(this.pathControllers))
+        if (fs.existsSync(this.pathControllers)) {
+            if (fs.existsSync(this.pathControllers + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
+            console.log((this.pathControllers + file.fileName).split(this.structureProject.dir)[1]);
             fs.writeFileSync(`${this.pathControllers}${file.fileName}`, file.write().replaceAll('(req: Request, res: Response)', ' = async (req: Request, res: Response): Promise<Response> =>'));
+        }
         else {
             let folder: any = this.pathControllers.split(path.sep);
             folder = folder[folder.length - 2];
@@ -280,7 +286,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
         }
     }
 
-    protected async addLineRoute(inputRouter: string, nameRoute: string) {
+    protected async addLineRoute({ inputRouter, nameRoute, forceOverwrite }: { inputRouter: string, nameRoute: string, forceOverwrite?: boolean }) {
         const content = fs.createReadStream(this.pathRoute + this.fileNameRoutes, 'utf8');
         let rl = readLine.createInterface({ input: content, crlfDelay: Infinity });
         let modifiedContent = '';
@@ -307,7 +313,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
             rl.on('close', () => {
                 fs.writeFileSync(this.pathRoute + this.fileNameRoutes, modifiedContent);
             });
-        } else console.log(ansiColors.blueBright(`A route with the name '${inputRouter}' already exists`));
+        } else if (forceOverwrite == undefined || !forceOverwrite) console.log(ansiColors.blueBright(`A route with the name '${inputRouter}' already exists`));
     }
 
 }
