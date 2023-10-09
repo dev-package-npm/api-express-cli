@@ -299,7 +299,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
             const content = fs.createReadStream(this.pathRoute + this.fileNameRoutes, 'utf8');
             let rl = readLine.createInterface({ input: content, crlfDelay: Infinity });
             rl.on('line', line => {
-                if (line.includes('//#region rutes') != false) {
+                if (line.includes('//#region routes') != false) {
                     modifiedContent += line;
                     modifiedContent += importRoute;
                 }

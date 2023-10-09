@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-//#region rutes
+//#region routes
 // Example
 //import testUserRouter from "../testing/controllers/user.test.controller";
 //#endregion

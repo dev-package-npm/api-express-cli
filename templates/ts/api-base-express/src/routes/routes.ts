@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-//#region rutes
+//#region routes
 import testRouter from "../testing/routes/routes";
 // Example
 //import example1Router from "./example1.routes"
