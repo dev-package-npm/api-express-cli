@@ -118,24 +118,15 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                     extendsTypes: ['Controller'],
                     methods: [
                         {
-                            name: 'create',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response',
-                                }
-                            ],
+                            name: 'create = async (req: Request, res: Response): Promise<Response> =>',
+                            returnType: ":Promise<Response> => ",
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.body;');
                                 writer.write('try').block(() => {
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.body, {});');
                                     writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Registro creado' }, 201);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
@@ -148,17 +139,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                         },
                         {
                             scope: 'public',
-                            name: 'get',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
+                            name: 'get = async (req: Request, res: Response): Promise<Response> =>',
                             returnType: 'Promise<Response>',
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.query;');
@@ -166,7 +147,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.query, {});');
                                     writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
@@ -178,17 +159,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                         },
                         {
                             scope: 'public',
-                            name: 'update',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
+                            name: 'update = async (req: Request, res: Response): Promise<Response> =>',
                             returnType: 'Promise<Response>',
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.body;');
@@ -196,7 +167,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.body, {});');
                                     writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
@@ -208,25 +179,14 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                         },
                         {
                             scope: 'public',
-                            name: 'delete',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
-                            returnType: 'Promise<Response>',
+                            name: 'delete = async (req: Request, res: Response): Promise<Response> =>',
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.query;');
                                 writer.write('try').block(() => {
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.query, {});');
                                     writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
@@ -277,7 +237,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
         if (fs.existsSync(this.pathControllers)) {
             if (fs.existsSync(this.pathControllers + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
             console.log((this.pathControllers + file.fileName).split(this.structureProject.dir)[1]);
-            fs.writeFileSync(`${this.pathControllers}${file.fileName}`, file.write().replaceAll('(req: Request, res: Response)', ' = async (req: Request, res: Response): Promise<Response> =>'));
+            fs.writeFileSync(`${this.pathControllers}${file.fileName}`, file.write().replaceAll('()', ''));
         }
         else {
             let folder: any = this.pathControllers.split(path.sep);
