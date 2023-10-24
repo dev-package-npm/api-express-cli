@@ -98,6 +98,6 @@ export abstract class Env extends Common {
     protected getHash(): string {
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(Date(), salt);
-        return hash;
+        return hash.replaceAll('$', '');
     }
 }
