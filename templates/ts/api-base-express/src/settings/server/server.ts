@@ -5,6 +5,7 @@ import express, { Application, Request, Response } from "express";
 // routes controller, middlewares
 import middlewares from "./middlewares/middleware";
 import router from "../../routes/routes";
+import { errorHandler } from "../../helpers/error-handler";
 //#endregion
 
 class Server {
@@ -26,6 +27,7 @@ class Server {
         this.app.get('/', (req: Request, res: Response) => res.status(200).send('index API'));
         // Main routes
         this.app.use(this.pathDefault, router);
+        this.app.use(errorHandler);
     }
 
     start() {

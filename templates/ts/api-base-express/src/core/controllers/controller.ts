@@ -10,13 +10,13 @@ export interface IResponse {
         text: string,
         errors: any
     };
-    data: Array<any> | string | Object | unknown;
+    data: any;
 }
 
 type IParamsResponse = {
-    text?: string;
-    data?: Array<any> | Object | string | unknown;
-    errors?: Array<any> | string;
+    text: string;
+    data?: any;
+    errors?: any;
     status?: number;
 }
 /**
@@ -67,7 +67,7 @@ type IParamsResponse = {
  * | 505  | HTTP Version Not Supported    | Section 6.6.6            |
  * +------+-------------------------------+--------------------------+
  */
-type TCodeHttp =
+export type TCodeHttp =
     100 | 101 | 200 | 201 |
     202 | 203 | 204 | 205 | 206 |
     300 | 301 | 302 | 303 | 304 | 305 | 307 |
@@ -78,6 +78,7 @@ type TCodeHttp =
 interface Irequest {
     requiredParameters?: Object | any;
     nullParameters?: Object | any;
+    strict?: boolean;
 }
 //#endregion
 
@@ -94,6 +95,8 @@ export class Controller extends Security {
         data: []
     };
     protected code: TCodeHttp = 200;
+
+
     //#endregion
 
     /**
@@ -135,12 +138,12 @@ export class Controller extends Security {
      * ValidateParams(req.body, {requiredParameters:{param1, param2}, nullParameters:{param3, param4}})
      * ValidateParams(req.query, {requiredParameters:{param1, param2}, nullParameters:{param3}, skipQuantityValidation:true})
      */
-    protected async validateParams(req: object | any, options: Irequest): Promise<any> {
-        options.nullParameters = options.nullParameters !== undefined && Object.entries(options.nullParameters).length != 0 ? options.nullParameters : {};
-        options.requiredParameters = options.requiredParameters !== undefined && Object.entries(options.requiredParameters).length != 0 ? options.requiredParameters : {};
+    protected async validateParams(req: object | any, { strict = true, nullParameters, requiredParameters }: Irequest): Promise<any> {
+        nullParameters = nullParameters !== undefined && Object.entries(nullParameters).length != 0 ? nullParameters : {};
+        requiredParameters = requiredParameters !== undefined && Object.entries(requiredParameters).length != 0 ? requiredParameters : {};
         let control: number = 0;
-        let validParams: Array<any> = Object.keys(options.requiredParameters || {});
-        let paramsNull: Array<any> = typeof options.nullParameters == 'object' ? Object.keys(options.nullParameters) : [];
+        let validParams: Array<any> = Object.keys(requiredParameters || {});
+        let paramsNull: Array<any> = typeof nullParameters == 'object' ? Object.keys(nullParameters) : [];
         let response = {};
 
         // Verifica si el valor es nulo y requerido, cosa que no es permitida por el método 
@@ -164,30 +167,28 @@ export class Controller extends Security {
 
             //#region Obtiene los parámetros que no son admitidos, o están mandando adicionalmente
             let unsupported_parameters = await this.getInvalidParameters(request, validParams);
-            if (unsupported_parameters.length > 0) {
-
+            if ((unsupported_parameters.length > 0) && strict) {
                 response = {
-                    message: `the number of parameters are not valid: expected <${Object.keys(options.requiredParameters).length + paramsNull.length}>`,
+                    message: `thes number of parameters are not valid: expected <${Object.keys(requiredParameters).length + paramsNull.length}>`,
                     expected: validParams,
                     unsupported_parameters
                 };
 
                 paramsNull.length > 0 ? Object.assign(response, { optional: paramsNull }) : '';
-                let missingParameters = await this.getMissingParameters(req, options.requiredParameters);
+                let missingParameters = await this.getMissingParameters(req, requiredParameters);
                 missingParameters.length > 0 ? Object.assign(response, { missing_parameters: missingParameters }) : '';
-
                 return response;
             }
 
             //#endregion
 
             //#region Valida que los valores requeridos los estén enviando.
-            if (request.length != validParams.length) {
+            if (request.length != validParams.length && strict) {
                 const arrayParamInvalid = await this.getInvalidParameters(request, validParams);
                 const invalidParams: string = `invalidParams = <${arrayParamInvalid}>`;
-                let missingParameters = await this.getMissingParameters(req, options.requiredParameters);
+                let missingParameters = await this.getMissingParameters(req, requiredParameters);
                 response = {
-                    message: `the number of parameters are not valid: expected <${Object.keys(options.requiredParameters).length + paramsNull.length}>`,
+                    message: `the number of parameters are not valid: expected <${Object.keys(requiredParameters).length + paramsNull.length}>`,
                     expected: validParams
                 }
                 paramsNull.length > 0 ? Object.assign(response, { optional: paramsNull }) : '';
@@ -219,16 +220,15 @@ export class Controller extends Security {
 
             return true;
         }
-        else if (Object.keys(req).length === validParams.length) {
+        else if ((Object.keys(req).length === validParams.length) || !strict) {
             return true;
         }
         else {
             response = {
-                message: `the number of parameters are not valid > length of received parameters = 0: expected <${Object.keys(options.requiredParameters).length || 0 + paramsNull.length}>`,
+                message: `the number of parameters are not valid > length of received parameters = 0: expected <${Object.keys(requiredParameters).length || 0 + paramsNull.length}>`,
                 expected: validParams
             }
             paramsNull.length > 0 ? Object.assign(response, { optional: paramsNull }) : '';
-            // response = `the number of parameters are not valid > length of received parameters = 0: expected <${Object.keys(options.requiredParameters).length + paramsNull.length}>  <${validParams}>`;
             return response;
         }
 
