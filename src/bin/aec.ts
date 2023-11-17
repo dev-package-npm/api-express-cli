@@ -98,7 +98,7 @@ COMMAND LINE FLAGS
                     await this.routeAndController(this.input.slice(1));
                 }
                 else if (params == 'add' || params == 'ad') {
-                    await this.addUtilities(this.input.slice(1));
+                    await this.addModules(this.input.slice(1));
                 }
                 else if (params == 'remove' || params == 'rm') {
                     await this.removeModules(this.input.slice(1));
@@ -155,7 +155,7 @@ COMMAND LINE FLAGS
                 switch (attributes[0]) {
                     case '--add':
                         attributes = attributes.slice(1);
-                        await this.addUtilities(attributes);
+                        await this.addModules(attributes);
                         break;
                     case '--name':
                         break;
@@ -364,7 +364,7 @@ COMMAND LINE FLAGS
         }
     }
 
-    private async addUtilities(params: Array<string>): Promise<void> {
+    private async addModules(params: Array<string>): Promise<void> {
         try {
             let choices = [];
             if (!this.isExistModuleDatabase()) choices.push({ name: 'Database (cuyb-orm)', value: 'db' });
