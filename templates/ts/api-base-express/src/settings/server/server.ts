@@ -6,6 +6,8 @@ import express, { Application, Request, Response } from "express";
 import middlewares from "./middlewares/middleware";
 import router from "../../routes/routes";
 import { errorHandler } from "../../helpers/error-handler";
+import { blueBright } from "ansi-colors";
+import { catchErrorMethod } from "../../core/helpers/catch-error-method";
 //#endregion
 
 class Server {
@@ -14,7 +16,6 @@ class Server {
 
     constructor() {
         this.app = express();
-        this.config();
         this.routes();
     }
 
@@ -30,10 +31,16 @@ class Server {
         this.app.use(errorHandler);
     }
 
-    start() {
-        if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get('port'));
-        else
-            this.app.listen(this.app.get('port'), () => console.log('Server initialized and listening on the port:', this.app.get('port'), ` visit: http://${process.env[`HOSTNAME_APP_${String(process.env.NODE_ENV).toUpperCase()}`]}`));
+    async start() {
+        try {
+            await this.config();
+        } catch (error: any) {
+            await catchErrorMethod(error);
+        } finally {
+            if (process.env.NODE_ENV === 'production') this.app.listen(this.app.get('port'));
+            else
+                this.app.listen(this.app.get('port'), () => console.log(`Server started on port ${this.app.get('port')}: ${blueBright(`http://${process.env[`HOSTNAME_APP_${String(process.env.NODE_ENV).toUpperCase()}`]}`)?.replace(String(process.env.PORT), this.app.get('port'))}`));
+        }
     }
 }
 

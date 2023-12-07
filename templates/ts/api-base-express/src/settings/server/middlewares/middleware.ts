@@ -3,22 +3,18 @@ import morgan from "morgan";
 import dotenvExpand from "dotenv-expand";
 import path from "path";
 import dotenv from "dotenv";
+import { middlewaresCors } from "./cors.middleware";
+import { middlewaresDynamicPort } from "./dynamic-port.middleware";
 
 const config = dotenv.config({ path: path.resolve() + '/.env' });
 dotenvExpand.expand(config);
 
 const middlewares = async (app: Application): Promise<void> => {
-    app.set('port', process.env.PORT || 0);
+    await middlewaresDynamicPort(app);
     app.use(express.json());
     app.use(morgan('dev'));
     app.use(express.urlencoded({ extended: true }));
-    app.use((req: Request, res: Response, next: NextFunction) => {
-        res.header('Access-Control-Allow-Origin', ' *');
-        res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-        res.header('Allow', 'GET, POST, PUT, DELETE');
-        next();
-    });
+    middlewaresCors(app);
 };
 
 export default middlewares;
