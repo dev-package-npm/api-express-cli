@@ -118,122 +118,82 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                     extendsTypes: ['Controller'],
                     methods: [
                         {
-                            name: 'create',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response',
-                                }
-                            ],
+                            name: 'create = async (req: Request, res: Response, next: NextFunction) =>',
+                            returnType: ":Promise<Response> => ",
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.body;');
                                 writer.write('try').block(() => {
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.body, {});');
-                                    writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('if (validation != true)').indent().write(`throw new ErrorRest({ message: 'Los parámetros son inválidos', status: 700, detail: validation }, 400);`);
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Registro creado' }, 201);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
 
                                 });
                                 writer.write('catch (error: any) ').block(() => {
-                                    writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                    writer.writeLine(`next(error);`);
                                 })
                             }
                         },
                         {
                             scope: 'public',
-                            name: 'get',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
+                            name: 'get = async (req: Request, res: Response, next: NextFunction) =>',
                             returnType: 'Promise<Response>',
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.query;');
                                 writer.write('try').block(() => {
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.query, {});');
-                                    writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('if (validation != true)').indent().write(`throw new ErrorRest({ message: 'Los parámetros son inválidos', status: 700, detail: validation }, 400);`);
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
                                 });
                                 writer.write('catch (error: any) ').block(() => {
-                                    writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                    writer.writeLine(`next(error);`);
                                 })
                             }
                         },
                         {
                             scope: 'public',
-                            name: 'update',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
+                            name: 'update = async (req: Request, res: Response, next: NextFunction) =>',
                             returnType: 'Promise<Response>',
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.body;');
                                 writer.write('try').block(() => {
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.body, {});');
-                                    writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('if (validation != true)').indent().write(`throw new ErrorRest({ message: 'Los parámetros son inválidos', status: 700, detail: validation }, 400);`);
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
                                 });
                                 writer.write('catch (error: any) ').block(() => {
-                                    writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                    writer.writeLine(`next(error);`);
                                 })
                             }
                         },
                         {
                             scope: 'public',
-                            name: 'delete',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
-                            returnType: 'Promise<Response>',
+                            name: 'delete = async (req: Request, res: Response, next: NextFunction) =>',
                             onWriteFunctionBody: writer => {
                                 writer.writeLine('const { } = req.query;');
                                 writer.write('try').block(() => {
                                     writer.writeLine('//#region Validate params');
                                     writer.write('const validation = await this.validateParams(req.query, {});');
-                                    writer.writeLine('if (validation != true)').indent().write(`return res.status(400).json(this.setResponse({ text: 'Los parámetros son inválidos', errors: validation, status: 700 }));`);
-                                    writer.writeLine('//#region Validate params');
+                                    writer.writeLine('if (validation != true)').indent().write(`throw new ErrorRest({ message: 'Los parámetros son inválidos', status: 700, detail: validation }, 400);`);
+                                    writer.writeLine('//#endregion');
                                     writer.blankLine();
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
 
                                 });
                                 writer.write('catch (error: any) ').block(() => {
-                                    writer.writeLine(`return res.status(500).json(this.setResponse({ text: 'Ha ocurrido un error inesperado', errors: error.message, status: 801 }));`);
+                                    writer.writeLine(`next(error);`);
                                 })
                             }
                         }
@@ -244,8 +204,12 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
             imports: [
                 {
                     moduleSpecifier: 'express',
-                    namedImports: [{ name: ' Request' }, { name: 'Response ' }],
+                    namedImports: [{ name: ' Request' }, { name: 'Response' }, { name: 'NextFunction ' }],
                     onBeforeWrite: writer => writer.writeLine('//#region Imports')
+                },
+                {
+                    defaultImportName: 'ErrorRest',
+                    moduleSpecifier: '../core/libs/error-rest'
                 },
                 {
                     onBeforeWrite: writer => writer.writeLine('// Local'),
@@ -277,7 +241,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
         if (fs.existsSync(this.pathControllers)) {
             if (fs.existsSync(this.pathControllers + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
             console.log((this.pathControllers + file.fileName).split(this.structureProject.dir)[1]);
-            fs.writeFileSync(`${this.pathControllers}${file.fileName}`, file.write().replaceAll('(req: Request, res: Response)', ' = async (req: Request, res: Response): Promise<Response> =>'));
+            fs.writeFileSync(`${this.pathControllers}${file.fileName}`, file.write().replaceAll('()', ''));
         }
         else {
             let folder: any = this.pathControllers.split(path.sep);

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist/index",
-    "dev:watch-server": "nodemon ./dist/index",
+    "dev:watch-server": "nodemon",
     "watch-ts": "npx tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,7 +19,8 @@
     "dotenv-expand": "^10.0.0",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "portscanner": "^2.2.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -28,6 +29,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/morgan": "^1.9.4",
     "@types/node": "^18.16.3",
+    "@types/portscanner": "^2.1.4",
     "nodemon": "^2.0.22",
     "typescript": "^5.0.4"
   }
