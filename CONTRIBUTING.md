@@ -47,7 +47,7 @@ Comando para empaquetar desarrollo para probarlo.
 npm pack
 ```
 
-## Quick start {#quick-start}
+## Quick start
 
 ### Comandos importantes
 
