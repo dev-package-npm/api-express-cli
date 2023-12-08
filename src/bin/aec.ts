@@ -60,7 +60,7 @@ COMMAND LINE FLAGS
         this.input = process.title.split(" ");
     }
 
-    async interpreInput(input?: string[]): Promise<void> {
+    async interpretInput(input?: string[]): Promise<void> {
         try {
             input !== undefined ? this.input = input : '';
             const params = this.input[0];

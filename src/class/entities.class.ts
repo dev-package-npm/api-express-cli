@@ -132,7 +132,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
 
                                 });
-                                writer.write('catch (error: any) ').block(() => {
+                                writer.write('catch (error) ').block(() => {
                                     writer.writeLine(`next(error);`);
                                 })
                             }
@@ -152,7 +152,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
                                 });
-                                writer.write('catch (error: any) ').block(() => {
+                                writer.write('catch (error) ').block(() => {
                                     writer.writeLine(`next(error);`);
                                 })
                             }
@@ -172,7 +172,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                                     writer.writeLine(`this.setResponse({ text: 'Exitoso' }, 200);`);
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
                                 });
-                                writer.write('catch (error: any) ').block(() => {
+                                writer.write('catch (error) ').block(() => {
                                     writer.writeLine(`next(error);`);
                                 })
                             }
@@ -192,7 +192,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
                                     writer.writeLine(`return res.status(this.code).json(this.response);`);
 
                                 });
-                                writer.write('catch (error: any) ').block(() => {
+                                writer.write('catch (error) ').block(() => {
                                     writer.writeLine(`next(error);`);
                                 })
                             }

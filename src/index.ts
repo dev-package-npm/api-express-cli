@@ -3,4 +3,4 @@ import Aec from "./bin/aec";
 
 const aec = new Aec();
 
-aec.interpreInput();
+aec.interpretInput();
