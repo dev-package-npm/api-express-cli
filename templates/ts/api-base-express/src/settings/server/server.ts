@@ -16,11 +16,11 @@ class Server {
 
     constructor() {
         this.app = express();
-        this.routes();
     }
 
     private async config() {
         await middlewares(this.app);
+        this.routes();
     }
 
     private routes() {
