@@ -1,6 +1,6 @@
 # Development documentation
 
-* [Spanish](#pasos-iniciales)
+* [Spanish](#Comandos-importantes)
     - [Comandos importantes](#Comandos-importantes)
 * [English](#quick-start)
 
