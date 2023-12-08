@@ -1,17 +1,8 @@
 # Development documentation
 
 * [Spanish](#pasos-iniciales)
+    - [Comandos importantes](#Comandos-importantes)
 * [English](#quick-start)
-
-[Pasos iniciales](#comandos-importantes)
-
-* [Comandos importantes](#Comandos importantes)
-
-Clonar el repositorio desde la rama development.
-
-```
-https://github.com/dev-package-npm/api-express-cli.git
-```
 
 ### Comandos importantes
 
