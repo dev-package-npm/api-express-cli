@@ -71,7 +71,7 @@ COMMAND LINE FLAGS
                 if (this.validateQuantityArguments(this.input, 1))
                     console.log('Version', ansiColors.cyan(await this.getVersion()));
             }
-            else if (this.input[1] == '--help' || this.input[1] == '-h') {
+            else if (this.input[1] == '--help' || this.input[1] == '-h' && !params.includes('db')) {
                 this.printHelpForCommand(this.input[0]);
             }
             else if (fs.existsSync(this.pathPackage)) {
