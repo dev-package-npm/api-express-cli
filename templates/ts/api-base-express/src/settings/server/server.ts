@@ -5,7 +5,7 @@ import express, { Application, Request, Response } from "express";
 // routes controller, middlewares
 import middlewares from "./middlewares/middleware";
 import router from "../../routes/routes";
-import { errorHandler } from "../../helpers/error-handler";
+import { errorHandler } from "../../middlewares/error-handler";
 import { blueBright } from "ansi-colors";
 import { catchErrorMethod } from "../../core/helpers/catch-error-method";
 //#endregion

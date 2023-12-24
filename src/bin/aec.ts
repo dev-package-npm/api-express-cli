@@ -29,7 +29,6 @@ ${ansiColors.yellowBright("api-express-cli")}
 
     COMMAND LINE FLAGS ${this.isExistModuleDatabase() ? `
         ${this.entityHelp}` : ''}
-        ${ansiColors.cyan('service, s ')}Create a service with the given name.
         ${ansiColors.cyan('route, r ')}Create a route with the given name.
         ${ansiColors.cyan('r+c ')}Create a route and controller with the given name.
         ${ansiColors.cyan('controller, c ')}Create a controller with the given name.
