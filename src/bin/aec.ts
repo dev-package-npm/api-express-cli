@@ -6,11 +6,8 @@ import path, { resolve } from 'path';
 
 import { textSync } from 'figlet';
 import inquirer from 'inquirer';
-import { Cuby } from 'cuby-orm';
 
 import { Entities } from '../class/entities.class';
-
-const cuby = new Cuby();
 
 type TAecOptions = 'service' | 'entity' | 'route' | 'controller' | 'r+c'
 
@@ -21,6 +18,7 @@ export default class Aec extends Entities {
     private abrevCommand: string = 'aec';
     private pathPackage = path.join(path.resolve(), '/package.json');
     private regExpEspecialCharacter: RegExp = /[!@#$%^&*()+={}\[\]|\\:;'",.<>/?]/;
+    private pathCubyOrm = path.join(path.resolve(), '/node_modules/cuby-orm');
 
     private entityHelp: string = `${ansiColors.cyan('entity, e ')}Create a set of files: route, controller and model.`;
     private help: string = `
@@ -77,7 +75,9 @@ COMMAND LINE FLAGS
                 this.printHelpForCommand(this.input[0]);
             }
             else if (fs.existsSync(this.pathPackage)) {
-                if (params.includes('db') && this.isExistModuleDatabase()) {
+                if (params.includes('db') && this.isExistModuleDatabase() && fs.existsSync(this.pathCubyOrm)) {
+                    const { Cuby } = await import(this.pathCubyOrm);
+                    const cuby = new Cuby();
                     await cuby.interpreInput(this.input);
                 }
                 else if (params == 'service' || params == 's') {
@@ -115,12 +115,17 @@ COMMAND LINE FLAGS
     }
 
     //#region Private methods
-    private printHelp(): void {
+    private async printHelp() {
         console.log(ansiColors.yellow(textSync(this.abrevCommand, { width: 80 })));
         console.log("(Api Express Cli)");
-
-        if (fs.existsSync(this.pathPackage))
-            console.log(this.help, this.isExistModuleDatabase() ? cuby.getHelp().split('\n').filter(value => (!value.includes('cuby') || value.includes('db:config'))).join('\n') : '');
+        if (fs.existsSync(this.pathPackage)) {
+            console.log(this.help);
+            if (fs.existsSync(this.pathCubyOrm) && this.isExistModuleDatabase()) {
+                const { Cuby } = await import(this.pathCubyOrm);
+                const cuby = new Cuby();
+                console.log(cuby.getHelp().split('\n')?.filter((value: any) => (!value.includes('cuby') || value.includes('db:config'))).join('\n'));
+            }
+        }
         else console.log(this.helpInitial);
     }
 
@@ -442,7 +447,11 @@ COMMAND LINE FLAGS
                     nameClassModelEntity = this.addPrefix(indexSeparator, upperCamelCase, 'Model');
                     await this.createRouter({ nameRoute, inputRouter: entity, nameController: nameClassController });
                     await this.createController({ nameClass: nameClassController, inputController: entity, nameModel: nameClassModelEntity });
-                    await cuby.interpreInput(this.auxInput);
+                    if (fs.existsSync(this.pathCubyOrm)) {
+                        const { Cuby } = await import(this.pathCubyOrm);
+                        const cuby = new Cuby();
+                        await cuby.interpreInput(this.auxInput);
+                    }
                     break;
                 case 'route':
                     if (fs.existsSync(this.pathRoute + this.replaceAll(route, '-') + `.${this.fileNameRoutes}`)) {

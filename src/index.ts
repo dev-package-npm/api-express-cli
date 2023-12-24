@@ -3,4 +3,12 @@ import Aec from "./bin/aec";
 
 const aec = new Aec();
 
-aec.interpretInput();
+const main = async () => {
+    try {
+        aec.interpretInput();
+    } catch (error: any) {
+        console.log(error.message);
+    }
+}
+
+main();
