@@ -2,13 +2,12 @@
 import ansiColors from 'ansi-colors';
 import fs from 'fs';
 import { copySync } from 'fs-extra';
-import path, { resolve } from 'path';
+import path from 'path';
 
 import { textSync } from 'figlet';
-import inquirer from 'inquirer';
 
 import { Entities } from '../class/entities.class';
-import { confirm, input, select } from '@inquirer/prompts';
+import { checkbox, confirm, input, select } from '@inquirer/prompts';
 
 type TAecOptions = 'entity' | 'route' | 'controller' | 'r+c'
 
@@ -95,10 +94,10 @@ COMMAND LINE FLAGS
                     await this.interpretActions({ params: this.input.slice(1), type: 'r+c' });
                 }
                 else if (params == 'add' || params == 'ad') {
-                    await this.addModules(this.input.slice(1));
+                    await this.modules({ params: this.input.slice(1), action: 'add' });
                 }
                 else if (params == 'remove' || params == 'rm') {
-                    await this.removeModules(this.input.slice(1));
+                    await this.modules({ params: this.input.slice(1), action: 'rm' });
                 }
                 else throw new Error(ansiColors.yellowBright('Command is not valid'));
             }
@@ -166,7 +165,7 @@ COMMAND LINE FLAGS
                 switch (attributes[0]) {
                     case '--add':
                         attributes = attributes.slice(1);
-                        await this.addModules(attributes);
+                        await this.modules({ params: attributes, action: 'add' });
                         break;
                     case '--name':
                         break;
@@ -180,7 +179,7 @@ COMMAND LINE FLAGS
         }
     }
 
-    private async interpretAnswer(answer: string, action: 'add' | 'rm' = 'add') {
+    private async interpretAnswerForModules(answer: string, action: 'add' | 'rm' = 'add') {
         try {
             switch (answer) {
                 case 'ws':
@@ -279,60 +278,20 @@ COMMAND LINE FLAGS
         }
     }
 
-    private async addModules(params: Array<string>): Promise<void> {
-        try {
-            let choices = [];
-            if (!this.isExistModuleDatabase()) choices.push({ name: 'Database (cuyb-orm)', value: 'db' });
-            if (!this.isExistModuleWs()) choices.push({ name: 'WS (SocketIo)', value: 'ws' });
-
-            if (choices.length > 0) {
-                if (params.length != 0) {
-                    for (const item of params) {
-                        await this.interpretAnswer(item);
-                    }
-                } else
-                    await inquirer.prompt({
-                        type: 'checkbox',
-                        name: 'utilities',
-                        message: 'Select the module to add: ',
-                        choices
-                    }).then(async (answer) => {
-                        for (const item of answer.utilities) {
-                            await this.interpretAnswer(item);
-                        }
-                    });
-            } else throw new Error(ansiColors.blueBright('The modules are already added'));
-        } catch (error: any) {
-            throw new Error(error.message)
-        }
-    }
-
-    private async removeModules(params: Array<string>) {
+    private async modules({ params, action }: { params: Array<string>, action: 'rm' | 'add' }) {
         try {
             let choices = [];
 
-            if (this.isExistModuleDatabase())
-                choices.push({ name: 'Database (cuby-orm)', value: 'db' });
-            if (this.isExistModuleWs())
-                choices.push({ name: 'WS (SocketIo)', value: 'ws' });
+            if ((action == 'rm' && this.isExistModuleDatabase()) || (action == 'add' && !this.isExistModuleDatabase())) choices.push({ name: 'Database (cuby-orm)', value: 'db' });
+            if ((action == 'rm' && this.isExistModuleWs()) || (action == 'add' && !this.isExistModuleWs)) choices.push({ name: 'WS (SocketIo)', value: 'ws' });
 
             if (choices.length > 0) {
-                if (params != undefined && params.length != 0) {
-                    for (const item of params) {
-                        await this.interpretAnswer(item, 'rm');
-                    }
-                } else
-                    await inquirer.prompt({
-                        type: 'checkbox',
-                        name: 'utilities',
-                        message: 'Select the module to remove: ',
-                        choices
-                    }).then(async (answer) => {
-                        for (const item of answer.utilities) {
-                            await this.interpretAnswer(item, 'rm');
-                        }
-                    });
-            } else throw new Error(ansiColors.blueBright('No modules to remove'));
+                const modules = params.length != 0 ? params : await checkbox({ message: `Select the module to ${action == 'add' ? 'add' : 'remove'}: `, choices });
+
+                for (const item of modules) {
+                    await this.interpretAnswerForModules(item, action);
+                }
+            } else throw new Error(ansiColors.blueBright(action == 'rm' ? 'No modules to remove' : 'The modules are already added'));
         } catch (error: any) {
             throw new Error(error.message);
         }
