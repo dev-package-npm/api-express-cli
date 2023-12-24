@@ -45,8 +45,11 @@ export abstract class Common {
     protected executeTerminal(params: string): Promise<string> {
         return new Promise((resovle, rejects) => {
             exec(params, (error, stdout, stderr) => {
-                if (error != null)
-                    rejects(new Error(String(error)));
+                // console.log({ error, stderr, stdout });
+                if (error != null) {
+                    const normalizeError = error?.message.split('\n').filter(value => value.includes('Error'))[0];
+                    rejects(new Error(normalizeError ?? error.message));
+                }
                 if (stderr != '')
                     rejects(new Error(String(stderr)));
                 resovle(stdout);

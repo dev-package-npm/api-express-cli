@@ -13,8 +13,7 @@
   "scripts": {
     "build": "rm -rf build && npx tsc",
     "watch-ts": "rm -rf build && npx tsc -w",
-    "prepare": "npm run build",
-    "test": "node ./build/test/blah.test.js"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",

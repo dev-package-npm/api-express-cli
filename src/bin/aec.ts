@@ -112,26 +112,30 @@ COMMAND LINE FLAGS
 
     //#region Private methods
     private async printHelp() {
-        console.log(ansiColors.yellow(textSync(this.abrevCommand, { width: 80 })));
-        console.log("(Api Express Cli)");
-        if (fs.existsSync(this.pathPackage)) {
-            console.log(this.help);
-            if (fs.existsSync(this.pathCubyOrm) && this.isExistModuleDatabase()) {
-                const { Cuby } = await import(this.pathCubyOrm);
-                const cuby = new Cuby();
-                const nombresMetodos = Object.getOwnPropertyNames(Cuby.prototype)
-                    .filter((nombre) => {
-                        // Filtrar solo los métodos (excluir constructor y propiedades)
-                        return (
-                            typeof Cuby.prototype[nombre] === 'function' &&
-                            nombre !== 'constructor'
-                        );
-                    });
-                // console.log(nombresMetodos);
-                console.log(cuby.getHelp().split('\n')?.filter((value: any) => (!value.includes('cuby') || value.includes('db:config'))).join('\n'));
+        try {
+            console.log(ansiColors.yellow(textSync(this.abrevCommand, { width: 80 })));
+            console.log("(Api Express Cli)");
+            if (fs.existsSync(this.pathPackage)) {
+                console.log(this.help);
+                if (fs.existsSync(this.pathCubyOrm) && this.isExistModuleDatabase()) {
+                    const { Cuby } = await import(this.pathCubyOrm);
+                    const cuby = new Cuby();
+                    const nombresMetodos = Object.getOwnPropertyNames(Cuby.prototype)
+                        .filter((nombre) => {
+                            // Filtrar solo los métodos (excluir constructor y propiedades)
+                            return (
+                                typeof Cuby.prototype[nombre] === 'function' &&
+                                nombre !== 'constructor'
+                            );
+                        });
+                    // console.log(nombresMetodos);
+                    console.log(cuby.getHelp().split('\n')?.filter((value: any) => (!value.includes('cuby') || value.includes('db:config'))).join('\n'));
+                }
             }
+            else console.log(this.helpInitial);
+        } catch (error: any) {
+            console.log(error.message);
         }
-        else console.log(this.helpInitial);
     }
 
     private validateQuantityArguments(params: string[], quantity: number): boolean {
