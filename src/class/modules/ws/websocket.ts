@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { createFile } from "ts-code-generator";
 import Spinnies from 'spinnies';
-import ansiColors from 'ansi-colors';
+import ansiColors, { blueBright, greenBright } from 'ansi-colors';
 import readLine from 'readline';
 import { Mixin } from 'ts-mixer';
 import { Config } from '../../config.class';
@@ -221,6 +221,7 @@ this.routes();`);
 
 
         fs.writeFileSync(this.pathTestingRoute + file.fileName, file.write());
+        console.log(greenBright('CREATED'), (this.pathTestingRoute + file.fileName).split(this.structureProject.dir)[1]);
         await this.addLineRouteWs();
     }
 
@@ -246,9 +247,16 @@ this.routes();`);
                             name: ' Request'
                         },
                         {
+                            name: 'NextFunction'
+                        },
+                        {
                             name: 'Response '
                         }
                     ]
+                },
+                {
+                    defaultImportName: 'ErrorRest',
+                    moduleSpecifier: '../core/libs/error-rest'
                 },
                 {
                     moduleSpecifier: '../../core/controllers/' + this.fileNameController.split('.')[0],
@@ -272,30 +280,19 @@ this.routes();`);
                     methods: [
                         {
                             scope: 'public',
-                            name: 'sendMessage',
-                            parameters: [
-                                {
-                                    name: 'req',
-                                    type: 'Request'
-                                },
-                                {
-                                    name: 'res',
-                                    type: 'Response'
-                                }
-                            ],
+                            name: 'sendMessage = async (req: Request, res: Response, next: NextFunction) =>',
                             onWriteFunctionBody: writer => writer.writeLine(`const { message } = req.body;
 try {
     //#region Validate params
     const validation = await this.validateParams(req.body, { requiredParameters: { message } });
-    if (validation != true)
-        return res.status(400).json(this.setResponse({ text: 'Parameters are invalid', errors: validation, status: 700 }));
+    if (validation != true) throw new ErrorRest({ message: 'Los parámetros son inválidos', status: 700, detail: validation }, 400);
     //#endregion
     WebsocketServer.io.emit('message', message);
     WebsocketServer.io.emit('data', message);
     this.setResponse({ text: 'Successfully sent' }, 200);
     return res.status(this.code).json(this.response);
-} catch (error: any) {
-    return res.status(500).json(this.setResponse({ text: 'An unexpected error has occurred', errors: error.message, status: 801 }));
+} catch (error) {
+    next(error);
 }`)
                         },
                         {
@@ -327,6 +324,7 @@ socketIo.on('connection', (socket) => {
         });
 
         fs.writeFileSync(this.pathTestingController + file.fileName, file.write().replaceAll('(req: Request, res: Response)', ' = async (req: Request, res: Response): Promise<Response> =>'));
+        console.log(greenBright('CREATED'), (this.pathTestingController + file.fileName).split(this.structureProject.dir)[1]);
     }
 
     protected isExistModuleWs(): boolean {
@@ -375,6 +373,7 @@ socketIo.on('connection', (socket) => {
             });
             rl.on('close', () => {
                 fs.writeFileSync(this.filePathServerHttp, modifiedContent);
+                console.log(blueBright('UPDATED'), (this.filePathServerHttp).split(this.structureProject.dir)[1]);
             });
         } else throw new Error(ansiColors.redBright(`The 'ws' module is already added to the server file`));
     }
@@ -404,6 +403,7 @@ socketIo.on('connection', (socket) => {
                 });
                 rl.on('close', () => {
                     fs.writeFileSync(this.pathTestingRoute + this.fileNameRoutes, modifiedContent);
+                    console.log(blueBright('UPDATED'), (this.pathTestingRoute + this.fileNameRoutes).split(this.structureProject.dir)[1]);
                 });
             } else throw new Error(ansiColors.redBright(`There is already a route associated with the name 'wsRouter'`));
         } catch (error: any) {
@@ -439,6 +439,7 @@ socketIo.on('connection', (socket) => {
             });
             rl.on('close', () => {
                 fs.writeFileSync(this.pathTestingRoute + this.fileNameRoutes, modifiedContent);
+                console.log(blueBright('UPDATED'), (this.pathTestingRoute + this.fileNameRoutes).split(this.structureProject.dir)[1]);
             });
         }
     }
@@ -447,6 +448,7 @@ socketIo.on('connection', (socket) => {
         try {
             if (fs.existsSync(this.pathTestingController + 'websocket.' + this.fileNameController)) {
                 fs.rmSync(this.pathTestingController + 'websocket.' + this.fileNameController, { recursive: true });
+                console.log(blueBright('UPDATED'), (this.pathTestingRoute + this.fileNameRoutes).split(this.structureProject.dir)[1]);
             }
         } catch (error: any) {
             throw new Error(error.message);
@@ -500,6 +502,7 @@ socketIo.on('connection', (socket) => {
             });
             rl.on('close', () => {
                 fs.writeFileSync(this.filePathServerHttp, modifiedContent);
+                console.log(blueBright('UPDATED'), (this.filePathServerHttp).split(this.structureProject.dir)[1]);
             });
 
         }

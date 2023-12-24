@@ -283,7 +283,7 @@ COMMAND LINE FLAGS
             let choices = [];
 
             if ((action == 'rm' && this.isExistModuleDatabase()) || (action == 'add' && !this.isExistModuleDatabase())) choices.push({ name: 'Database (cuby-orm)', value: 'db' });
-            if ((action == 'rm' && this.isExistModuleWs()) || (action == 'add' && !this.isExistModuleWs)) choices.push({ name: 'WS (SocketIo)', value: 'ws' });
+            if ((action == 'rm' && this.isExistModuleWs()) || (action == 'add' && !this.isExistModuleWs())) choices.push({ name: 'WS (SocketIo)', value: 'ws' });
 
             if (choices.length > 0) {
                 const modules = params.length != 0 ? params : await checkbox({ message: `Select the module to ${action == 'add' ? 'add' : 'remove'}: `, choices });
