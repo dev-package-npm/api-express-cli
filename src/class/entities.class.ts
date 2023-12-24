@@ -98,7 +98,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
             });
         if (fs.existsSync(this.pathRoute)) {
             if (fs.existsSync(this.pathRoute + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
-            console.log(forceOverwrite && fs.existsSync(this.pathControllers + file.fileName) ? blueBright('UPDATED') : greenBright('CREATED'), (this.pathRoute + file.fileName).split(this.structureProject.dir)[1]);
+            console.log(forceOverwrite && fs.existsSync(this.pathRoute + file.fileName) ? blueBright('UPDATED') : greenBright('CREATED'), (this.pathRoute + file.fileName).split(this.structureProject.dir)[1]);
             fs.writeFileSync(`${this.pathRoute}${file.fileName}`, file.write());
             await this.addLineRoute({ inputRouter, nameRoute, forceOverwrite });
         }

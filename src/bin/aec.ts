@@ -8,8 +8,9 @@ import { textSync } from 'figlet';
 import inquirer from 'inquirer';
 
 import { Entities } from '../class/entities.class';
+import { confirm, input, select } from '@inquirer/prompts';
 
-type TAecOptions = 'service' | 'entity' | 'route' | 'controller' | 'r+c'
+type TAecOptions = 'entity' | 'route' | 'controller' | 'r+c'
 
 export default class Aec extends Entities {
     //#region Private properties
@@ -79,22 +80,19 @@ COMMAND LINE FLAGS
                     const cuby = new Cuby();
                     await cuby.interpreInput(this.input);
                 }
-                else if (params == 'service' || params == 's') {
-                    await this.service(this.input.slice(1));
-                }
                 else if (this.isExistModuleDatabase() && params == 'entity' || params == 'e') {
                     this.auxInput = this.input;
                     this.auxInput[0] = 'db:model';
-                    await this.entity(this.input.slice(1));
+                    await this.interpretActions({ params: this.input.slice(1), type: 'entity' });
                 }
                 else if (params == 'route' || params == 'r') {
-                    await this.route(this.input.slice(1));
+                    await this.interpretActions({ params: this.input.slice(1), type: 'route' });
                 }
                 else if (params == 'controller' || params == 'c') {
-                    await this.controller(this.input.slice(1));
+                    await this.interpretActions({ params: this.input.slice(1), type: 'controller' });
                 }
                 else if (params == 'r+c') {
-                    await this.routeAndController(this.input.slice(1));
+                    await this.interpretActions({ params: this.input.slice(1), type: 'r+c' });
                 }
                 else if (params == 'add' || params == 'ad') {
                     await this.addModules(this.input.slice(1));
@@ -221,16 +219,13 @@ COMMAND LINE FLAGS
                     language = enableJs ? params[2] : 'ts';
                 else if (params.length != 1) throw new Error(ansiColors.redBright("One of the values passed are not valid, or values are missing"));
                 else {
-                    const typeLanguage = await inquirer.prompt({
-                        type: 'list',
-                        choices: [
+                    const typeLanguage = await select({
+                        message: 'Select the language', choices: [
                             { value: 'TS', name: 'Typescript' },
                             { value: 'JS', name: 'Javascript', disabled: true }
                         ],
-                        name: 'res',
-                        message: 'Select the language'
                     });
-                    language = typeLanguage != undefined ? typeLanguage.res : 'ts';
+                    language = typeLanguage != undefined ? typeLanguage : 'ts';
                 }
 
                 if (!fs.existsSync(path.join(path.resolve(), params[0]))) {
@@ -251,15 +246,9 @@ COMMAND LINE FLAGS
                     await this.writeHashInKey(path.join(process.cwd(), './.env'));
                     this.spinnies.succeed('spinner-create');
                     this.executeTerminal('code --version').then(async () => {
-                        await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            default: true,
-                            message: 'Would you like to open it with VS Code',
-                        }).then(async (answer) => {
-                            if (answer.res)
-                                await this.executeTerminal('code .');
-                        });
+                        const answer = await confirm({ default: true, message: 'Would you like to open it with VS Code', });
+                        if (answer)
+                            await this.executeTerminal('code .');
                     });
                 }
                 else throw new Error(ansiColors.yellowBright(`A project with name '${ansiColors.blueBright(params[0])}' already exists`));
@@ -272,106 +261,19 @@ COMMAND LINE FLAGS
         }
     }
 
-    private async route(params: Array<string>) {
+    private async interpretActions({ type, params }: { type: TAecOptions, params: string[] }) {
         try {
-            if (params.length != 0) {
-                for (const item of params) {
-                    await this.executeAction(item, 'route')
-                }
-            } else
-                await inquirer.prompt({
-                    type: 'input',
-                    name: 'route',
-                    message: 'Write the name of the route: ',
-                }).then(async (answer) => {
-                    for (const item of String(answer.route).split('')) {
-                        await this.executeAction(item, 'route')
-                    }
-                });
-        } catch (error: any) {
-            throw new Error(error.message);
-        }
-    }
+            const messageDictionary: { type: TAecOptions, message: string }[] = [
+                { type: 'route', message: 'Write the name of the route or routes separated by space: ' },
+                { type: 'controller', message: 'Write the name of the controller or controllers separated by space: ' },
+                { type: 'entity', message: 'Write the name of the entity or entities separated by space: ' },
+                { type: 'r+c', message: 'Write one or more separated by space' },
+            ];
 
-    private async controller(params: Array<string>) {
-        try {
-            if (params.length != 0) {
-                for (const item of params) {
-                    await this.executeAction(item, 'controller')
-                }
-            } else
-                await inquirer.prompt({
-                    type: 'input',
-                    name: 'controller',
-                    message: 'Write the name of the controller separated by space: ',
-                }).then(async (answer) => {
-                    for (const item of String(answer.controller).split('')) {
-                        await this.executeAction(item, 'controller')
-                    }
-                });
-        } catch (error: any) {
-            throw new Error(error.message);
-        }
-    }
-
-    private async entity(params: Array<string>) {
-        try {
-            if (params.length != 0) {
-                for (const item of params) {
-                    await this.executeAction(item, 'entity');
-                }
-            } else
-                await inquirer.prompt({
-                    type: 'input',
-                    name: 'entity',
-                    message: 'Write the name of the entity separated by space: ',
-                }).then(async (answer) => {
-                    for (const item of String(answer.entity).split(' ')) {
-                        await this.executeAction(item, 'entity');
-                    }
-                });
-        } catch (error: any) {
-            throw new Error(error.message);
-        }
-    }
-
-    private async routeAndController(params: Array<string>) {
-        try {
-            if (params.length != 0) {
-                for (const item of params) {
-                    await this.executeAction(item, 'r+c');
-                }
-            } else
-                await inquirer.prompt({
-                    type: 'input',
-                    name: 'routeController',
-                    message: 'Write the name separated by space: ',
-                }).then(async (answer) => {
-                    for (const item of String(answer.routeController).split(' ')) {
-                        await this.executeAction(item, 'r+c');
-                    }
-                });
-        } catch (error: any) {
-            throw new Error(error.message);
-        }
-    }
-
-    private async service(params: Array<string>) {
-        try {
-            if (params.length != 0) {
-                for (const item of params) {
-                    await this.executeAction(item, 'service');
-                }
-            } else
-                await inquirer.prompt({
-                    type: 'input',
-                    name: 'service',
-                    message: 'Write the name separated by space: ',
-                }).then(async (answer) => {
-                    for (const item of String(answer.service).split(' ')) {
-                        await this.executeAction(item, 'service');
-                    }
-                });
+            const routes = params.length != 0 ? params : (await input({ message: (messageDictionary.filter((value) => value.type == type))[0].message })).split(' ');
+            for (const item of routes) {
+                await this.executeAction(item, type)
+            }
         } catch (error: any) {
             throw new Error(error.message);
         }
@@ -464,15 +366,10 @@ COMMAND LINE FLAGS
                 case 'route':
                     if (fs.existsSync(this.pathRoute + this.replaceAll(route, '-') + `.${this.fileNameRoutes}`)) {
                         console.log(ansiColors.redBright(`Router file '${route}' already exists`));
-                        await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            message: `Would you like to overwrite the ${route} route?`,
-                            default: false
-                        }).then(async (answer2) => {
-                            if (answer2.res)
-                                await this.createRouter({ nameRoute, inputRouter: route, forceOverwrite: true });
-                        });
+                        const answer = await confirm({ message: `Would you like to overwrite the ${route} route?`, default: false });
+
+                        if (answer)
+                            await this.createRouter({ nameRoute, inputRouter: route, forceOverwrite: true });
                     } else
                         await this.createRouter({ nameRoute, inputRouter: route });
                     break;
@@ -482,63 +379,39 @@ COMMAND LINE FLAGS
                     let nameClass = this.addPrefix(indexSeparator, controller, 'Controller');
                     if (fs.existsSync(this.pathControllers + this.replaceAll(controller, '-') + `.${this.fileNameController}`)) {
                         console.log(ansiColors.redBright(`Controller '${value.toLocaleLowerCase()}' already exists`));
-                        await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            message: `Would you like to overwrite the ${value.toLocaleLowerCase()} controller?`,
-                            default: false
-                        }).then(async (answer2) => {
-                            if (answer2.res)
-                                await this.createController({ nameClass, inputController: value.toLocaleLowerCase(), forceOverwrite: true });
-                        });
+                        const answer = await confirm({ message: `Would you like to overwrite the ${value.toLocaleLowerCase()} controller?`, default: false });
+                        if (answer)
+                            await this.createController({ nameClass, inputController: value.toLocaleLowerCase(), forceOverwrite: true });
                     } else
                         await this.createController({ nameClass, inputController: value.toLocaleLowerCase() });
-                    break;
-                case 'service':
-                    console.log("No implemented");
                     break;
                 case 'r+c':
                     let routeController = String(value).toLocaleLowerCase();
                     const rcUpperCamelCase = routeController.charAt(0).toUpperCase() + routeController.slice(1);
                     nameClassController = this.addPrefix(indexSeparator, rcUpperCamelCase, 'Controller');
+
                     if (fs.existsSync(this.pathControllers + this.replaceAll(routeController, '-') + `.${this.fileNameController}`) && fs.existsSync(this.pathRoute + this.replaceAll(routeController, '-') + `.${this.fileNameRoutes}`)) {
                         console.log(ansiColors.redBright(`Controller and route '${value.toLocaleLowerCase()}' already exists`));
-                        const answer = await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            message: `Would you like to overwrite the controller and the route? '${ansiColors.blueBright(value.toLocaleLowerCase())}'`,
-                            default: false
-                        });
-
-                        if (answer.res) {
+                        const answer = await confirm({ message: `Would you like to overwrite the controller and the route? '${ansiColors.blueBright(value.toLocaleLowerCase())}'`, default: false });
+                        if (answer) {
                             await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
                             await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
                         }
                     }
                     else if (fs.existsSync(this.pathControllers + this.replaceAll(routeController, '-') + `.${this.fileNameController}`)) {
                         console.log(ansiColors.redBright(`Controller '${value.toLocaleLowerCase()}' already exists`));
-                        const answer = await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            message: `Would you like to overwrite the '${ansiColors.blueBright(value.toLocaleLowerCase())}' controller?`,
-                            default: false
-                        });
+                        const answer = await confirm({ message: `Would you like to overwrite the '${ansiColors.blueBright(value.toLocaleLowerCase())}' controller?`, default: false });
 
-                        if (answer.res) {
+                        if (answer) {
                             await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
                             await this.createController({ nameClass: nameClassController, inputController: routeController });
                         }
                     }
                     else if (fs.existsSync(this.pathRoute + this.replaceAll(routeController, '-') + `.${this.fileNameRoutes}`)) {
                         console.log(ansiColors.redBright(`Route '${value.toLocaleLowerCase()}' already exists`));
-                        const answer = await inquirer.prompt({
-                            type: 'confirm',
-                            name: 'res',
-                            message: `Would you like to overwrite the '${ansiColors.blueBright(value.toLocaleLowerCase())}' route? `,
-                            default: false
-                        });
+                        const answer = await confirm({ message: `Would you like to overwrite the '${ansiColors.blueBright(value.toLocaleLowerCase())}' route? `, default: false });
 
-                        if (answer.res) {
+                        if (answer) {
                             await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController });
                             await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
                         }
