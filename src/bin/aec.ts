@@ -122,6 +122,15 @@ COMMAND LINE FLAGS
             if (fs.existsSync(this.pathCubyOrm) && this.isExistModuleDatabase()) {
                 const { Cuby } = await import(this.pathCubyOrm);
                 const cuby = new Cuby();
+                const nombresMetodos = Object.getOwnPropertyNames(Cuby.prototype)
+                    .filter((nombre) => {
+                        // Filtrar solo los métodos (excluir constructor y propiedades)
+                        return (
+                            typeof Cuby.prototype[nombre] === 'function' &&
+                            nombre !== 'constructor'
+                        );
+                    });
+                // console.log(nombresMetodos);
                 console.log(cuby.getHelp().split('\n')?.filter((value: any) => (!value.includes('cuby') || value.includes('db:config'))).join('\n'));
             }
         }
@@ -504,7 +513,6 @@ COMMAND LINE FLAGS
                         if (answer.res) {
                             await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
                             await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
-                            console.log(ansiColors.greenBright("Done"));
                         }
                     }
                     else if (fs.existsSync(this.pathControllers + this.replaceAll(routeController, '-') + `.${this.fileNameController}`)) {
@@ -519,7 +527,6 @@ COMMAND LINE FLAGS
                         if (answer.res) {
                             await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
                             await this.createController({ nameClass: nameClassController, inputController: routeController });
-                            console.log(ansiColors.greenBright("Done"));
                         }
                     }
                     else if (fs.existsSync(this.pathRoute + this.replaceAll(routeController, '-') + `.${this.fileNameRoutes}`)) {
@@ -534,12 +541,10 @@ COMMAND LINE FLAGS
                         if (answer.res) {
                             await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController });
                             await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
-                            console.log(ansiColors.greenBright("Done"));
                         }
                     } else {
                         await this.createRouter({ nameRoute, inputRouter: routeController, nameController: nameClassController, forceOverwrite: true });
                         await this.createController({ nameClass: nameClassController, inputController: routeController, forceOverwrite: true });
-                        console.log(ansiColors.greenBright("Done"));
                     }
                     break;
             }

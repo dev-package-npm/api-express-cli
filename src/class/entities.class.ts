@@ -5,7 +5,7 @@ import readLine from 'node:readline';
 import { FileControl } from "./file.class";
 import { Mixin } from 'ts-mixer';
 import { PackageFile } from "./package-file.class";
-import ansiColors from "ansi-colors";
+import ansiColors, { blueBright, greenBright } from "ansi-colors";
 import { Config } from "./config.class";
 import { Common } from "./common.class";
 import { Module } from "./module.class";
@@ -98,7 +98,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
             });
         if (fs.existsSync(this.pathRoute)) {
             if (fs.existsSync(this.pathRoute + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
-            console.log((this.pathRoute + file.fileName).split(this.structureProject.dir)[1]);
+            console.log(forceOverwrite && fs.existsSync(this.pathControllers + file.fileName) ? blueBright('UPDATED') : greenBright('CREATED'), (this.pathRoute + file.fileName).split(this.structureProject.dir)[1]);
             fs.writeFileSync(`${this.pathRoute}${file.fileName}`, file.write());
             await this.addLineRoute({ inputRouter, nameRoute, forceOverwrite });
         }
@@ -240,7 +240,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
             });
         if (fs.existsSync(this.pathControllers)) {
             if (fs.existsSync(this.pathControllers + file.fileName) && (forceOverwrite == undefined || !forceOverwrite)) throw new Error(`The ${ansiColors.blueBright(file.fileName)} file already exists`);
-            console.log((this.pathControllers + file.fileName).split(this.structureProject.dir)[1]);
+            console.log(forceOverwrite && fs.existsSync(this.pathControllers + file.fileName) ? blueBright('UPDATED') : greenBright('CREATED'), (this.pathControllers + file.fileName).split(this.structureProject.dir)[1]);
             fs.writeFileSync(`${this.pathControllers}${file.fileName}`, file.write().replaceAll('()', ''));
         }
         else {
@@ -276,6 +276,7 @@ export abstract class Entities extends Mixin(PackageFile, Common, Config, FileCo
 
             rl.on('close', () => {
                 fs.writeFileSync(this.pathRoute + this.fileNameRoutes, modifiedContent);
+                console.log(blueBright('UPDATED'), (this.pathRoute + this.fileNameRoutes).split(this.structureProject.dir)[1]);
             });
         } else if (forceOverwrite == undefined || !forceOverwrite) console.log(ansiColors.blueBright(`A route with the name '${inputRouter}' already exists`));
     }
